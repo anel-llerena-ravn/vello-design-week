@@ -1,0 +1,432 @@
+<title>Walk Request Flow v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root {
+    --paper: #F6F2E7;
+    --band: #EDE8D8;
+    --card: #FFFDF7;
+    --ink: #1B1C18;
+    --muted: #5B5E52;
+    --line: #6B6E62;
+    --soft-line: #D9D6C7;
+    --forest: #16462F;
+    --on-forest: #F6F2E7;
+    --sheet: #557E26;
+    --on-sheet: #FBFAF3;
+    --olive: #557E26;
+    --user-bg: #E7EDD8;  --user-bd: #557E26;
+    --sys-bg: #E6E8F6;   --sys-bd: #4F56A0;
+    --edge: #F3F0E6;
+    --ok-bg: #E3F1E5;   --ok-bd: #8FC49C;   --ok-tx: #1F5130;
+    --load-bg: #E6E8F6; --load-bd: #A9AEE0; --load-tx: #2E3470;
+    --err-bg: #F8E3DC;  --err-bd: #D98B72;  --err-tx: #8A2D14;
+    --neu-bg: #ECECE6;  --neu-bd: #B9B8AC;  --neu-tx: #45463F;
+    --part-bg: #FBEFCF; --part-bd: #D9AE45; --part-tx: #6B4E07;
+    --assume: #C2481F;
+    --display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+    --body: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #131510; --band: #1A1D16; --card: #1D2119; --ink: #EDEAE0; --muted: #A9AC9E;
+      --line: #8E9283; --soft-line: #343A2C;
+      --forest: #2F6B4A; --on-forest: #F2EFE4; --sheet: #4E7A2A; --on-sheet: #F2EFE4; --olive: #9CC266;
+      --user-bg: #253020; --user-bd: #9CC266;
+      --sys-bg: #22254A;  --sys-bd: #8F96E0;
+      --edge: #20241C;
+      --ok-bg: #1C3325; --ok-bd: #3F7A52; --ok-tx: #B7E2C2;
+      --load-bg: #22254A; --load-bd: #4F56A0; --load-tx: #C9CDF5;
+      --err-bg: #3D211A; --err-bd: #9A4A33; --err-tx: #F4C2B2;
+      --neu-bg: #2A2B26; --neu-bd: #55574D; --neu-tx: #D2D2C8;
+      --part-bg: #3A3016; --part-bd: #9C7D24; --part-tx: #F1D98F;
+      --assume: #FF8A63;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #131510; --band: #1A1D16; --card: #1D2119; --ink: #EDEAE0; --muted: #A9AC9E;
+    --line: #8E9283; --soft-line: #343A2C;
+    --forest: #2F6B4A; --on-forest: #F2EFE4; --sheet: #4E7A2A; --on-sheet: #F2EFE4; --olive: #9CC266;
+    --user-bg: #253020; --user-bd: #9CC266;
+    --sys-bg: #22254A;  --sys-bd: #8F96E0;
+    --edge: #20241C;
+    --ok-bg: #1C3325; --ok-bd: #3F7A52; --ok-tx: #B7E2C2;
+    --load-bg: #22254A; --load-bd: #4F56A0; --load-tx: #C9CDF5;
+    --err-bg: #3D211A; --err-bd: #9A4A33; --err-tx: #F4C2B2;
+    --neu-bg: #2A2B26; --neu-bd: #55574D; --neu-tx: #D2D2C8;
+    --part-bg: #3A3016; --part-bd: #9C7D24; --part-tx: #F1D98F;
+    --assume: #FF8A63;
+  }
+
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.45; }
+  .wrap { max-width: 1760px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 48px; }
+
+  header { display: grid; gap: 6px; max-width: 80ch; margin-bottom: 16px; }
+  .eyebrow { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--olive); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(24px, 3.2vw, 32px); line-height: 1.12; text-wrap: balance; }
+  .scope { margin: 2px 0 0; color: var(--muted); font-size: 14.5px; }
+
+  /* Legend */
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; padding: 12px 0 6px; font-size: 12.5px; }
+  .legend > span { display: inline-flex; align-items: center; gap: 7px; }
+  .rules { margin: 0 0 22px; padding-bottom: 16px; border-bottom: 1px solid var(--soft-line); font-size: 12.5px; color: var(--muted); display: grid; gap: 2px; }
+  .k { display: inline-block; flex: none; width: 22px; height: 14px; border: 1.5px solid; border-radius: 4px; }
+  .k.screen { background: var(--card); border: 2px solid var(--forest); border-top-width: 6px; }
+  .k.sheet { background: var(--card); border: 2px solid var(--sheet); border-top-width: 6px; border-radius: 8px 8px 3px 3px; }
+  .k.user { background: var(--user-bg); border-color: var(--user-bd); transform: rotate(45deg) scale(.7); width: 16px; height: 16px; border-radius: 2px; }
+  .k.sys { background: var(--sys-bg); border-color: var(--sys-bd); transform: rotate(45deg) scale(.7); width: 16px; height: 16px; border-radius: 2px; }
+  .k.load { background: var(--load-bg); border-color: var(--load-bd); border-radius: 999px; }
+  .k.err { background: var(--err-bg); border-color: var(--err-bd); border-style: dashed; }
+  .k.ok { background: var(--ok-bg); border-color: var(--ok-bd); }
+  .k.end { background: var(--card); border: 2px solid var(--forest); border-radius: 999px; }
+  .k.main { width: 26px; height: 0; border: 0; border-top: 3px solid var(--forest); border-radius: 0; }
+  .a { color: var(--assume); font-weight: 700; font-style: normal; font-family: var(--mono); font-size: 10.5px; letter-spacing: .02em; white-space: nowrap; }
+
+  /* Canvas */
+  .scroller { overflow-x: auto; padding-bottom: 6px; }
+  .canvas {
+    position: relative; min-width: 1640px;
+    display: grid; grid-template-columns: repeat(8, minmax(170px, 1fr));
+    column-gap: 22px; row-gap: 46px; padding: 22px 30px 22px 70px; align-items: center;
+  }
+  .band {
+    grid-row: var(--r1) / calc(var(--r2) + 1); grid-column: 1 / -1; align-self: stretch;
+    margin: -16px -18px -16px -58px; border-radius: 18px; background: var(--band); position: relative; z-index: 0;
+  }
+  .band span {
+    position: absolute; left: 12px; top: 18px; writing-mode: vertical-rl; transform: rotate(180deg);
+    font-family: var(--display); font-weight: 700; font-size: 15px; letter-spacing: .12em; text-transform: uppercase; color: var(--forest);
+  }
+  .band span small { font-family: var(--mono); font-weight: 500; font-size: 10.5px; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+  .wires, .labels { position: absolute; inset: 0; pointer-events: none; }
+  .wires { z-index: 1; overflow: visible; }
+  .labels { z-index: 3; }
+  .wire { fill: none; stroke: var(--line); stroke-width: 1.5; }
+  .wire.dash { stroke-dasharray: 5 4; }
+  .wire.main { stroke: var(--forest); stroke-width: 3; }
+  .head { fill: var(--line); }
+  .head.main { fill: var(--forest); }
+  .lab {
+    position: absolute; font-style: italic; font-size: 12px; color: var(--muted); white-space: nowrap;
+    background: var(--band); padding: 0 4px; line-height: 1.3; border-radius: 4px;
+  }
+
+  .n {
+    grid-row: var(--r); grid-column: var(--c) / span var(--s, 1);
+    position: relative; z-index: 2; text-align: center; font-size: 12.5px; line-height: 1.35;
+    border-radius: 12px; padding: 9px 12px; border: 1.5px solid transparent;
+  }
+  .n b { display: block; font-size: 13.5px; font-weight: 700; }
+  .n .sub { display: block; color: var(--muted); margin-top: 2px; }
+
+  /* Screens and sheets: a colored header strip carries the ID */
+  .screen, .sheet { padding: 0; background: var(--card); border: 2px solid var(--forest); border-radius: 14px; overflow: hidden; text-align: left; }
+  .sheet { border-color: var(--sheet); border-radius: 18px 18px 8px 8px; }
+  .hd { display: flex; align-items: center; gap: 10px; padding: 7px 12px; background: var(--forest); color: var(--on-forest); }
+  .sheet .hd { background: var(--sheet); color: var(--on-sheet); position: relative; padding-top: 12px; }
+  .sheet .hd::before { content: ""; position: absolute; top: 4px; left: 50%; transform: translateX(-50%); width: 34px; height: 4px; border-radius: 4px; background: currentColor; opacity: .55; }
+  .hd .sid { font-family: var(--mono); font-weight: 700; font-size: 15px; line-height: 1; padding: 4px 7px; border-radius: 7px; background: rgba(255,255,255,.16); }
+  .hd .kind { font-family: var(--mono); font-size: 10px; letter-spacing: .07em; text-transform: uppercase; opacity: .85; }
+  .hd .a { color: inherit; opacity: .95; margin-left: auto; }
+  .bd { padding: 9px 12px 11px; }
+  .bd b { font-size: 14.5px; }
+  .variant { border-style: dashed; }
+  .variant .hd { background: transparent; color: var(--forest); border-bottom: 1.5px dashed var(--forest); }
+  .variant .hd .sid { background: var(--user-bg); }
+
+  .sts { list-style: none; margin: 8px 0 0; padding: 8px 0 0; border-top: 1px dashed var(--soft-line); display: grid; gap: 5px; }
+  .sts li { display: grid; grid-template-columns: 64px 1fr; gap: 8px; align-items: baseline; font-size: 12px; line-height: 1.35; }
+  .sts i { font-style: normal; font-family: var(--mono); font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase; text-align: center; border: 1px solid; border-radius: 999px; padding: 1px 0; }
+  .sts .st-load i { background: var(--load-bg); border-color: var(--load-bd); color: var(--load-tx); }
+  .sts .st-empty i { background: var(--neu-bg); border-color: var(--neu-bd); color: var(--neu-tx); }
+  .sts .st-err i { background: var(--err-bg); border-color: var(--err-bd); color: var(--err-tx); }
+  .sts .st-ok i { background: var(--ok-bg); border-color: var(--ok-bd); color: var(--ok-tx); }
+
+  .pill { background: var(--forest); color: var(--on-forest); border-radius: 999px; padding: 12px 18px; }
+  .pill b { font-size: 14.5px; }
+  .pill .sub { color: var(--on-forest); opacity: .85; }
+  .pill .a { color: #FFB59A; }
+  .end { background: var(--card); border: 2px solid var(--forest); border-radius: 999px; padding: 8px 14px; }
+  .end b { color: var(--forest); font-size: 13px; }
+  .load { background: var(--load-bg); border-color: var(--load-bd); color: var(--load-tx); border-radius: 999px; padding: 8px 14px; font-weight: 500; }
+  .err { background: var(--err-bg); border: 1.5px dashed var(--err-bd); color: var(--err-tx); }
+  .err .sub { color: var(--err-tx); opacity: .85; }
+  .ok { background: var(--ok-bg); border-color: var(--ok-bd); color: var(--ok-tx); }
+  .neu { background: var(--neu-bg); border-color: var(--neu-bd); color: var(--neu-tx); }
+  .ok > b, .neu > b { font-family: var(--mono); font-size: 12.5px; font-weight: 500; }
+  .act { background: none; border: 0; padding: 4px 10px; color: var(--muted); font-style: italic; }
+  .act b { font-style: normal; font-weight: 600; font-size: 12.5px; color: var(--ink); }
+  .act .tagline { font-family: var(--mono); font-style: normal; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+  .ret { background: var(--card); border: 2px solid var(--forest); border-radius: 999px; }
+  .edgecase { background: var(--edge); border: 1.5px dashed var(--line); text-align: left; }
+  .edgecase .tag { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+
+  .dia { background: none; border: 0; padding: 16px 26%; margin-inline: 16px; min-height: 80px; display: grid; place-items: center; }
+  .dia svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
+  .dia polygon { stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .dia.user polygon { fill: var(--user-bg); stroke: var(--user-bd); }
+  .dia.sys polygon { fill: var(--sys-bg); stroke: var(--sys-bd); }
+  .dia .kind { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+  .dia b { font-size: 13.5px; }
+
+  .hint { margin-top: 8px; font-size: 12px; color: var(--muted); }
+  @media (min-width: 1690px) { .hint { display: none; } }
+
+  .tables { margin-top: 36px; border-top: 1px solid var(--soft-line); padding-top: 20px; display: grid; gap: 12px; max-width: 1100px; }
+  .tables h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 20px; }
+  .tables .lede { margin: 0; color: var(--muted); max-width: 75ch; }
+  .tw { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 13px; border-bottom: 1px solid var(--soft-line); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  thead th { font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  td.num { font-family: var(--mono); color: var(--assume); width: 36px; font-variant-numeric: tabular-nums; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Vello · User flow · Request phase</span>
+    <h1>Post a request for weekday walks and get the first replies</h1>
+    <p class="scope">Sam needs a walker for Loki every weekday. The flow runs from tapping + to seeing the first replies, where the Compare phase starts. Inside the app only, in three stages: Post, Wait and Come back.</p>
+  </header>
+
+  <div class="legend" aria-label="Legend">
+    <span><i class="k screen"></i>Screen</span>
+    <span><i class="k sheet"></i>Sheet</span>
+    <span><i class="k user"></i>Sam decides</span>
+    <span><i class="k sys"></i>System checks</span>
+    <span><i class="k load"></i>Loading</span>
+    <span><i class="k err"></i>Error, with a dashed retry loop</span>
+    <span><i class="k ok"></i>Status change</span>
+    <span><i class="k end"></i>End of the phase</span>
+    <span><i class="k main"></i>Main path</span>
+  </div>
+  <div class="rules">
+    <span>Every screen is designed with Loading, Empty, Error and Success states. They appear on the screen card, or as a branch when they change the path. They are requirements, so they aren't tagged as assumptions.</span>
+    <span><i class="a">[ASSUMPTION n]</i> A product rule the prototype doesn't have yet. Check it against the brief. The list is at the end.</span>
+  </div>
+
+  <div class="scroller">
+    <div class="canvas" id="canvas">
+      <div class="band" style="--r1:1;--r2:12"><span><small>Stage 1</small>Post</span></div>
+      <div class="band" style="--r1:13;--r2:18"><span><small>Stage 2</small>Wait</span></div>
+      <div class="band" style="--r1:19;--r2:21"><span><small>Stage 3</small>Come back</span></div>
+
+      <svg class="wires" id="wires" aria-hidden="true">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"></path></marker>
+          <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path class="head main" d="M0,0 L10,5 L0,10 z"></path></marker>
+        </defs>
+      </svg>
+      <div class="labels" id="labels"></div>
+
+      <!-- Stage 1: Post -->
+      <div class="n pill" id="EA" style="--r:1;--c:4;--s:2"><b>Start · Sam taps +</b><span class="sub">Or "Post a request" on a category with no walkers <span class="a">[ASSUMPTION 1]</span></span></div>
+
+      <div class="n sheet" id="S1" style="--r:2;--c:4;--s:2"><div class="hd"><span class="sid">S1</span><span class="kind">Sheet</span></div><div class="bd"><b>What would you like to add?</b><span class="sub">Post a request · Book a neighbor · Never mind</span></div></div>
+
+      <div class="n dia user" id="D1" style="--r:3;--c:4;--s:2"><svg viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="200,2 398,50 200,98 2,50"></polygon></svg><span><span class="kind">D1 · Sam decides</span><b>What does Sam want to do?</b></span></div>
+
+      <div class="n end" id="X1" style="--r:4;--c:1;--s:2"><b>End · Left without posting</b></div>
+      <div class="n dia sys" id="D2" style="--r:4;--c:4;--s:2"><svg viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="200,2 398,50 200,98 2,50"></polygon></svg><span><span class="kind">D2 · System checks</span><b>Open dog-walking request already?</b><span class="a">[ASSUMPTION 2]</span></span></div>
+
+      <div class="n screen" id="S3" style="--r:5;--c:4;--s:2"><div class="hd"><span class="sid">S3</span><span class="kind">Screen</span></div><div class="bd"><b>Post a request</b><span class="sub">What, when, where and budget</span><ul class="sts"><li class="st-empty"><i>Empty</i><span>Address and start date pre-filled</span></li><li class="st-err"><i>Error</i><span>Missing fields are marked</span></li></ul></div></div>
+      <div class="n sheet" id="S2" style="--r:5;--c:7;--s:2"><div class="hd"><span class="sid">S2</span><span class="kind">Sheet</span><span class="a">[ASSUMPTION 2]</span></div><div class="bd"><b>You already have an open request</b><span class="sub">View it · Post another. Both requests stay open.</span></div></div>
+
+      <div class="n dia user" id="D3" style="--r:6;--c:4;--s:2"><svg viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="200,2 398,50 200,98 2,50"></polygon></svg><span><span class="kind">D3 · Sam decides</span><b>Post or leave?</b></span></div>
+
+      <div class="n sheet" id="S4" style="--r:7;--c:1;--s:2"><div class="hd"><span class="sid">S4</span><span class="kind">Sheet</span><span class="a">[ASSUMPTION 3]</span></div><div class="bd"><b>Discard this request?</b><span class="sub">Keep editing returns to S3</span></div></div>
+      <div class="n dia sys" id="D4" style="--r:7;--c:4;--s:2"><svg viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="200,2 398,50 200,98 2,50"></polygon></svg><span><span class="kind">D4 · System checks</span><b>Required fields filled?</b></span></div>
+      <div class="n err" id="E1" style="--r:7;--c:7;--s:2"><b>Missing fields marked</b><span class="sub">Sam stays on the form</span></div>
+
+      <div class="n end" id="X2" style="--r:8;--c:1;--s:2"><b>End · Left without posting</b></div>
+      <div class="n dia sys" id="D5" style="--r:8;--c:4;--s:2"><svg viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="200,2 398,50 200,98 2,50"></polygon></svg><span><span class="kind">D5 · System checks</span><b>Address in Vello's area?</b><span class="a">[ASSUMPTION 4]</span></span></div>
+      <div class="n err" id="E2" style="--r:8;--c:7;--s:2"><b>Not in Vello's area yet</b><span class="sub">Join the waitlist <span class="a">[ASSUMPTION 4]</span></span></div>
+
+      <div class="n load" id="L1" style="--r:9;--c:4;--s:2">Posting…</div>
+      <div class="n end" id="X3" style="--r:9;--c:7;--s:2"><b>End · Left without posting</b></div>
+
+      <div class="n load" id="CHK" style="--r:10;--c:1;--s:2">Connection lost · Checking if it went through <span class="a">[ASSUMPTION 5]</span></div>
+      <div class="n ok" id="ST1" style="--r:10;--c:4;--s:2"><b>status → open</b></div>
+
+      <div class="n err" id="E3" style="--r:11;--c:1;--s:2"><b>Not posted · Try again</b><span class="sub">Draft kept, never posted twice</span></div>
+      <div class="n dia sys" id="D6" style="--r:11;--c:4;--s:2"><svg viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="200,2 398,50 200,98 2,50"></polygon></svg><span><span class="kind">D6 · System checks</span><b>Any verified walker covers Sam's street?</b><span class="a">[ASSUMPTION 6]</span></span></div>
+
+      <div class="n act" id="SY1" style="--r:12;--c:4;--s:2"><span class="tagline">System</span> <b>Sends the request to those walkers</b></div>
+
+      <!-- Stage 2: Wait -->
+      <div class="n screen" id="S5" style="--r:13;--c:4;--s:2"><div class="hd"><span class="sid">S5</span><span class="kind">Screen</span></div><div class="bd"><b>Your request · Open</b><ul class="sts"><li class="st-load"><i>Loading</i><span>Opening the request</span></li><li class="st-empty"><i>Empty</i><span>"No replies yet", or "No walkers cover your street yet" <span class="a">[ASSUMPTION 6]</span></span></li><li class="st-err"><i>Error</i><span>Couldn't load, Retry</span></li><li class="st-ok"><i>Success</i><span>Details shown, badge Open</span></li></ul></div></div>
+
+      <div class="n dia user" id="D7" style="--r:14;--c:4;--s:2"><svg viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="200,2 398,50 200,98 2,50"></polygon></svg><span><span class="kind">D7 · Sam decides</span><b>What does Sam do while waiting?</b></span></div>
+
+      <div class="n screen" id="S6" style="--r:15;--c:1;--s:2"><div class="hd"><span class="sid">S6</span><span class="kind">Screen</span><span class="a">[ASSUMPTION 7]</span></div><div class="bd"><b>Edit request</b><ul class="sts"><li class="st-load"><i>Loading</i><span>Saving…</span></li><li class="st-err"><i>Error</i><span>Missing fields, or couldn't save</span></li><li class="st-ok"><i>Success</i><span>Updated; walkers who replied are told</span></li></ul></div></div>
+      <div class="n dia sys" id="D8" style="--r:15;--c:4;--s:2"><svg viewBox="0 0 400 100" preserveAspectRatio="none"><polygon points="200,2 398,50 200,98 2,50"></polygon></svg><span><span class="kind">D8 · System checks</span><b>A walker replies within 24h?</b><span class="a">[ASSUMPTION 8]</span></span></div>
+      <div class="n sheet" id="S7" style="--r:15;--c:7;--s:2"><div class="hd"><span class="sid">S7</span><span class="kind">Sheet</span></div><div class="bd"><b>Close this request?</b><span class="sub">Keep it open returns to S5</span></div></div>
+
+      <div class="n screen variant" id="T1" style="--r:16;--c:3"><div class="hd"><span class="sid">S5</span><span class="kind">Nudge</span></div><div class="bd"><b>Nobody has replied yet</b><span class="sub">A push, then: widen the time or budget (S6), or browse neighbors</span></div></div>
+      <div class="n ok" id="ST3" style="--r:16;--c:4;--s:2"><b>status → reply received</b><span class="sub">Push "Elena replied". With notifications off, only the Home card updates. <span class="a">[ASSUMPTION 10]</span></span></div>
+      <div class="n load" id="L3" style="--r:16;--c:7;--s:2">Closing…</div>
+
+      <div class="n err" id="E5" style="--r:17;--c:6"><b>Couldn't close · Try again</b></div>
+      <div class="n neu" id="ST4" style="--r:17;--c:7;--s:2"><b>status → closed</b><span class="sub">Walkers who replied are told <span class="a">[ASSUMPTION 7]</span></span></div>
+
+      <div class="n end" id="ENDX" style="--r:18;--c:2;--s:2"><b>End · Request expired</b><span class="sub">No replies in 7 days. Post it again opens S3 pre-filled. <span class="a">[ASSUMPTION 9]</span></span></div>
+      <div class="n end" id="ENDC" style="--r:18;--c:7;--s:2"><b>End · Request closed</b></div>
+
+      <!-- Stage 3: Come back -->
+      <div class="n ret" id="RET" style="--r:19;--c:4;--s:2"><b>Sam comes back</b><span class="sub">From the Home card, the push or Profile</span></div>
+
+      <div class="n screen" id="S8" style="--r:20;--c:4;--s:2"><div class="hd"><span class="sid">S8</span><span class="kind">Screen</span></div><div class="bd"><b>Your request · 3 neighbors responded</b><ul class="sts"><li class="st-load"><i>Loading</i><span>Loading replies</span></li><li class="st-empty"><i>Empty</i><span>Every walker who replied was removed, back to "No replies yet"</span></li><li class="st-err"><i>Error</i><span>Couldn't load, Retry</span></li><li class="st-ok"><i>Success</i><span>Replies listed with price per walk</span></li></ul></div></div>
+      <div class="n edgecase" id="WD" style="--r:20;--c:6;--s:2"><span class="tag">Edge case</span><b>A Community Admin removes a walker who replied</b><span class="sub">Their reply shows "No longer available on Vello" and Book is off. <span class="a">[ASSUMPTION 11]</span></span></div>
+
+      <div class="n pill" id="EXIT" style="--r:21;--c:4;--s:2"><b>End · Compare starts</b><span class="sub">Sam reviews the replies</span></div>
+    </div>
+  </div>
+  <p class="hint">Scroll sideways to see the whole flow.</p>
+
+  <section class="tables">
+    <h2>Assumptions to verify</h2>
+    <p class="lede">Product rules the flow depends on that the prototype doesn't have yet. Each number matches a tag in the flow.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>#</th><th>Assumption</th><th>Prototype today</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td>The "No dog walkers nearby yet" button on Home opens the request form.</td><td>The button says "See your open request" and opens the existing request.</td></tr>
+          <tr><td class="num">2</td><td>A second open dog-walking request shows a warning, and both requests stay open.</td><td>A new post replaces the old request and its replies without warning.</td></tr>
+          <tr><td class="num">3</td><td>Leaving a form with any field filled asks Sam to confirm the discard.</td><td>Cancel discards everything without asking.</td></tr>
+          <tr><td class="num">4</td><td>Addresses outside Vello's area are blocked and offered a waitlist.</td><td>Any address is accepted.</td></tr>
+          <tr><td class="num">5</td><td>If the connection drops, posting pauses, the draft is kept, and a request is never posted twice.</td><td>No offline or failure state is designed.</td></tr>
+          <tr><td class="num">6</td><td>Only verified dog walkers whose area covers the address get the request, and Sam is told when there are none.</td><td>Always shows "Request posted to your block".</td></tr>
+          <tr><td class="num">7</td><td>Sam can edit or close an open request, and walkers who replied are told about either change.</td><td>Editing isn't wired up, and closing only happens on the device.</td></tr>
+          <tr><td class="num">8</td><td>After 24 hours with no replies, Sam gets a push and a prompt to widen the time or budget.</td><td>The empty state promises "We'll let you know the moment someone does", and nothing else happens.</td></tr>
+          <tr><td class="num">9</td><td>A request with no replies expires after 7 days and can be posted again pre-filled.</td><td>Requests never expire.</td></tr>
+          <tr><td class="num">10</td><td>Each reply sends a push that opens the request. With notifications off, only the Home card updates.</td><td>The Home bell always says "No new notifications", and the Profile switch changes nothing.</td></tr>
+          <tr><td class="num">11</td><td>A walker removed by a Community Admin after replying shows "No longer available on Vello", with Book off.</td><td>Not covered.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Connectors: [from, to, label, type]. Types:
+  //   down (default)  bottom of source to top of target, elbowed
+  //   side            horizontal, source edge to the facing edge of the target
+  //   bypass          out the source's right, down, into the target's right
+  //   loopLeft        dashed retry: out the source's left, up, into the target's left
+  //   loopUp          dashed retry: up from the source's top, into the target's nearest side
+  //   attach          dashed, no arrow: edge case pinned to a node
+  const EDGES = [
+    ["EA","S1"], ["S1","D1"],
+    ["D1","X1","Book a neighbor or Never mind"], ["D1","D2","Post a request"],
+    ["D2","S3","No"], ["D2","S2","Yes"],
+    ["S2","S3","Post another","side"],
+    ["S3","D3"],
+    ["D3","S4","Leave"], ["D3","D4","Post"],
+    ["S4","X2","Discard"],
+    ["D4","E1","No","side"], ["D4","D5","Yes"],
+    ["E1","D3","Fixes and posts again","loopUp"],
+    ["D5","E2","No","side"], ["D5","L1","Yes"],
+    ["E2","X3"],
+    ["L1","ST1"], ["L1","CHK","Connection lost"],
+    ["CHK","ST1","It went through","side"], ["CHK","E3","It didn't"], ["E3","L1","","loopLeft"],
+    ["ST1","D6"], ["D6","SY1","Yes"], ["D6","S5","No","bypass"],
+    ["SY1","S5"], ["S5","D7"],
+    ["D7","S6","Edit"], ["D7","D8","Waits, or browses neighbors"], ["D7","S7","Close"],
+    ["S6","S5","Saved","loopLeft"],
+    ["S7","L3","Close request"], ["L3","ST4"], ["L3","E5","Fails"], ["E5","L3","Try again","loopLeft"],
+    ["ST4","ENDC"],
+    ["D8","T1","No"], ["D8","ST3","Yes"],
+    ["T1","ENDX","7 days, still nothing"],
+    ["ST3","RET"], ["RET","S8"],
+    ["WD","S8","","attach"], ["S8","EXIT"]
+  ];
+  const MAIN = new Set(["EA>S1","S1>D1","D1>D2","D2>S3","S3>D3","D3>D4","D4>D5","D5>L1","L1>ST1","ST1>D6","D6>SY1","SY1>S5","S5>D7","D7>D8","D8>ST3","ST3>RET","RET>S8","S8>EXIT"]);
+
+  const canvas = document.getElementById("canvas");
+  const wires = document.getElementById("wires");
+  const labels = document.getElementById("labels");
+  const NS = "http://www.w3.org/2000/svg";
+
+  function box(id) {
+    const c = canvas.getBoundingClientRect();
+    const r = document.getElementById(id).getBoundingClientRect();
+    const x = r.left - c.left, y = r.top - c.top;
+    return { l: x, t: y, r: x + r.width, b: y + r.height, cx: x + r.width / 2, cy: y + r.height / 2, h: r.height };
+  }
+
+  function label(text, x, y, align) {
+    if (!text) return;
+    const s = document.createElement("span");
+    s.className = "lab";
+    s.textContent = text;
+    s.style.left = x + "px";
+    s.style.top = y + "px";
+    s.style.transform = align === "left" ? "translate(0, -50%)" : "translate(-50%, -100%)";
+    labels.appendChild(s);
+  }
+
+  function draw() {
+    wires.querySelectorAll("path.wire").forEach(p => p.remove());
+    labels.innerHTML = "";
+    wires.setAttribute("width", canvas.scrollWidth);
+    wires.setAttribute("height", canvas.scrollHeight);
+
+    EDGES.forEach(([from, to, text, type = "down"]) => {
+      const a = box(from), b = box(to);
+      const main = MAIN.has(from + ">" + to);
+      let d = "", dashed = false, arrow = true;
+
+      if (type === "down") {
+        const sx = a.cx, sy = a.b, tx = b.cx, ty = b.t;
+        if (Math.abs(sx - tx) < 2) {
+          d = `M${sx},${sy} V${ty}`;
+          label(text, sx + 8, sy + (ty - sy) * 0.7, "left");
+        } else {
+          const my = sy + (ty - sy) / 2;
+          d = `M${sx},${sy} V${my} H${tx} V${ty}`;
+          label(text, sx + (tx - sx) * 0.7, my - 2);
+        }
+      } else if (type === "side") {
+        const toRight = b.cx > a.cx;
+        const sx = toRight ? a.r : a.l, tx = toRight ? b.l : b.r;
+        const sy = a.cy, ty = b.cy, mx = (sx + tx) / 2;
+        d = Math.abs(sy - ty) < 2 ? `M${sx},${sy} H${tx}` : `M${sx},${sy} H${mx} V${ty} H${tx}`;
+        label(text, mx, Math.min(sy, ty) - 3);
+      } else if (type === "bypass") {
+        const x0 = Math.max(a.r, b.r) + 22;
+        d = `M${a.r},${a.cy} H${x0} V${b.t + 26} H${b.r}`;
+        label(text, x0 + 6, (a.cy + b.t) / 2, "left");
+      } else if (type === "loopLeft") {
+        dashed = true;
+        const x0 = Math.min(a.l, b.l) - 16;
+        d = `M${a.l},${a.cy} H${x0} V${b.cy} H${b.l}`;
+        label(text, x0 + 6, (a.cy + b.cy) / 2, "left");
+      } else if (type === "loopUp") {
+        dashed = true;
+        const tx = a.cx > b.cx ? b.r : b.l;
+        d = `M${a.cx},${a.t} V${b.cy} H${tx}`;
+        label(text, a.cx + 8, (a.t + b.cy) / 2, "left");
+      } else if (type === "attach") {
+        dashed = true; arrow = false;
+        const toRight = b.cx > a.cx;
+        d = `M${toRight ? a.r : a.l},${a.cy} H${toRight ? b.l : b.r}`;
+      }
+
+      const p = document.createElementNS(NS, "path");
+      p.setAttribute("d", d);
+      p.setAttribute("class", "wire" + (dashed ? " dash" : "") + (main ? " main" : ""));
+      if (arrow) p.setAttribute("marker-end", main ? "url(#ahm)" : "url(#ah)");
+      wires.appendChild(p);
+    });
+  }
+
+  draw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(draw);
+  if (window.ResizeObserver) new ResizeObserver(draw).observe(canvas);
+  window.addEventListener("resize", draw);
+</script>

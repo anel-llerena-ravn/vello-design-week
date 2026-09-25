@@ -1,0 +1,358 @@
+<title>Kestrel Park Synthesis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root {
+    --paper: #F6F2E7;
+    --card: #FFFDF7;
+    --ink: #1B1C18;
+    --muted: #5B5E52;
+    --line: #D9D6C7;
+    --forest: #16462F;
+    --on-forest: #F6F2E7;
+    --olive: #557E26;
+    --tint: #E7EDD8;
+    --persimmon: #C2481F;
+    --strike: #8A2D14;
+    /* participant roles */
+    --req: #2F6A9E;
+    --prov: #B8741A;
+    --admin: #7A4FA0;
+    --off: #E3E0D3;
+    /* problem statement parts */
+    --who-bg: #DCE9F6;  --who-bd: #3C74AB;
+    --what-bg: #FBEBC4; --what-bd: #B9830F;
+    --why-bg: #EBE0F5;  --why-bd: #8456B0;
+    --imp-bg: #DCEBD0;  --imp-bd: #4C8A2E;
+    --display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+    --body: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #131510; --card: #1D2119; --ink: #EDEAE0; --muted: #A9AC9E; --line: #343A2C;
+      --forest: #A9CFB4; --on-forest: #131510; --olive: #9CC266; --tint: #253020; --persimmon: #FF8A63; --strike: #F4B3A0;
+      --req: #7FB3E6; --prov: #E6AE5C; --admin: #C39BE6; --off: #33382D;
+      --who-bg: #1C2E42;  --who-bd: #7FB3E6;
+      --what-bg: #3A3016; --what-bd: #E3BC52;
+      --why-bg: #2E2340;  --why-bd: #C39BE6;
+      --imp-bg: #22341B;  --imp-bd: #93CC6E;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #131510; --card: #1D2119; --ink: #EDEAE0; --muted: #A9AC9E; --line: #343A2C;
+    --forest: #A9CFB4; --on-forest: #131510; --olive: #9CC266; --tint: #253020; --persimmon: #FF8A63; --strike: #F4B3A0;
+    --req: #7FB3E6; --prov: #E6AE5C; --admin: #C39BE6; --off: #33382D;
+    --who-bg: #1C2E42;  --who-bd: #7FB3E6;
+    --what-bg: #3A3016; --what-bd: #E3BC52;
+    --why-bg: #2E2340;  --why-bd: #C39BE6;
+    --imp-bg: #22341B;  --imp-bd: #93CC6E;
+  }
+
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 72px; display: grid; gap: 28px; }
+
+  header { display: grid; gap: 10px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--olive); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(30px, 4.6vw, 46px); line-height: 1.05; color: var(--forest); text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); font-size: 17px; max-width: 64ch; }
+
+  .panel { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; padding-top: 4px; }
+  .who-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pchip { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; font-weight: 700; padding: 4px 9px 4px 7px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
+  .pchip i { width: 9px; height: 9px; border-radius: 50%; display: block; }
+  .pchip small { font-family: var(--body); font-weight: 500; font-size: 12.5px; color: var(--muted); }
+  .r-req { background: var(--req); } .r-prov { background: var(--prov); } .r-admin { background: var(--admin); }
+
+  /* Section switcher */
+  .tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; flex-wrap: wrap; gap: 6px; padding-block: 10px; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .tab { font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+  .tab .ct { font-family: var(--mono); font-size: 11.5px; opacity: .7; }
+  .tab[aria-pressed="true"] { background: var(--forest); border-color: var(--forest); color: var(--on-forest); }
+  button:focus-visible { outline: 3px solid var(--olive); outline-offset: 2px; }
+
+  section { display: grid; gap: 16px; scroll-margin-top: 70px; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 26px; color: var(--forest); }
+  .note { margin: 0; color: var(--muted); font-size: 15px; max-width: 70ch; }
+  .sec-head { display: grid; gap: 6px; }
+
+  /* Themes */
+  .themes { display: grid; gap: 12px; }
+  .theme { display: grid; grid-template-columns: 48px 1fr; gap: 6px 16px; padding: 18px 20px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line); }
+  .theme .rank { grid-row: span 3; font-family: var(--display); font-weight: 700; font-size: 32px; line-height: 1; color: var(--forest); font-variant-numeric: tabular-nums; }
+  .theme h3 { margin: 0; font-size: 19px; line-height: 1.3; font-weight: 700; text-wrap: balance; }
+  .reach { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .dots { display: flex; gap: 4px; }
+  .dot { width: 26px; height: 22px; border-radius: 6px; display: grid; place-items: center; font-family: var(--mono); font-size: 10px; font-weight: 700; color: #fff; background: var(--off); }
+  .dot.off { color: var(--muted); }
+  .dot.req { background: var(--req); } .dot.prov { background: var(--prov); } .dot.admin { background: var(--admin); }
+  :root[data-theme="dark"] .dot:not(.off) { color: #131510; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .dot:not(.off) { color: #131510; } }
+  .reach b { font-family: var(--mono); font-size: 12.5px; color: var(--muted); font-weight: 500; }
+  .toggle { justify-self: start; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; padding: 4px 0; border: 0; background: none; color: var(--olive); text-decoration: underline; text-underline-offset: 3px; }
+  .quotes { display: grid; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
+  .quotes li { display: grid; grid-template-columns: 38px 1fr; gap: 10px; font-size: 15.5px; }
+  .quotes .pid { font-family: var(--mono); font-size: 12px; font-weight: 700; padding-top: 3px; }
+  .quotes .pid.req { color: var(--req); } .quotes .pid.prov { color: var(--prov); } .quotes .pid.admin { color: var(--admin); }
+  .quotes p { margin: 0; max-width: 68ch; }
+
+  .shallow { display: grid; gap: 8px; padding: 18px 20px; border-radius: 14px; border: 1.5px dashed var(--persimmon); background: var(--card); }
+  .shallow .k { font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--persimmon); }
+  .shallow h3 { margin: 0; font-size: 18px; }
+  .shallow p { margin: 0; max-width: 72ch; }
+  .shallow .dots { margin-top: 2px; }
+
+  /* Problem statements */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .legend .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+  .key { font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+  .key i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+  .key[data-part="who"] i { background: var(--who-bg); border: 2px solid var(--who-bd); }
+  .key[data-part="what"] i { background: var(--what-bg); border: 2px solid var(--what-bd); }
+  .key[data-part="why"] i { background: var(--why-bg); border: 2px solid var(--why-bd); }
+  .key[data-part="imp"] i { background: var(--imp-bg); border: 2px solid var(--imp-bd); }
+  .key[aria-pressed="true"] { border-color: var(--ink); }
+  .key.reset { color: var(--muted); font-weight: 500; }
+
+  .statements { display: grid; gap: 14px; }
+  .ps { display: grid; gap: 12px; padding: 20px 22px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line); }
+  .ps-top { display: flex; gap: 14px; align-items: baseline; }
+  .ps .rank { font-family: var(--display); font-weight: 700; font-size: 32px; line-height: 1; color: var(--forest); font-variant-numeric: tabular-nums; }
+  .ps h3 { margin: 0; font-size: 19px; line-height: 1.3; text-wrap: balance; }
+  .ps .body { margin: 0; font-size: 17px; line-height: 1.85; max-width: 72ch; }
+  .ps .fed { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  mark { color: inherit; padding: 2px 3px; border-radius: 4px; border-bottom: 2.5px solid transparent; box-decoration-break: clone; -webkit-box-decoration-break: clone; transition: background-color .2s, border-color .2s, opacity .2s; }
+  mark.who  { background: var(--who-bg);  border-bottom-color: var(--who-bd); }
+  mark.what { background: var(--what-bg); border-bottom-color: var(--what-bd); }
+  mark.why  { background: var(--why-bg);  border-bottom-color: var(--why-bd); }
+  mark.imp  { background: var(--imp-bg);  border-bottom-color: var(--imp-bd); }
+  .statements[data-focus] mark { background: transparent; border-bottom-color: transparent; opacity: .45; }
+  .statements[data-focus="who"] mark.who,
+  .statements[data-focus="what"] mark.what,
+  .statements[data-focus="why"] mark.why,
+  .statements[data-focus="imp"] mark.imp { opacity: 1; }
+  .statements[data-focus="who"] mark.who { background: var(--who-bg); border-bottom-color: var(--who-bd); }
+  .statements[data-focus="what"] mark.what { background: var(--what-bg); border-bottom-color: var(--what-bd); }
+  .statements[data-focus="why"] mark.why { background: var(--why-bg); border-bottom-color: var(--why-bd); }
+  .statements[data-focus="imp"] mark.imp { background: var(--imp-bg); border-bottom-color: var(--imp-bd); }
+  .tag { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; vertical-align: 2px; margin-right: 5px; opacity: .8; }
+  .ps.plain mark { background: transparent !important; border-bottom-color: transparent !important; opacity: 1 !important; }
+  .ps.plain .tag { display: none; }
+
+  /* Corrections */
+  .corrections { display: grid; gap: 12px; }
+  .corr { display: grid; grid-template-columns: 1fr 1fr 1fr; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line); overflow: hidden; }
+  .corr > div { display: grid; align-content: start; gap: 6px; padding: 16px 18px; }
+  .corr > div + div { border-left: 1px solid var(--line); }
+  .corr .k { font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+  .corr p { margin: 0; font-size: 15.5px; }
+  .corr .before p { color: var(--strike); text-decoration: line-through; text-decoration-thickness: 1.5px; text-decoration-color: color-mix(in srgb, var(--strike) 55%, transparent); }
+  .corr .before .k { color: var(--persimmon); }
+  .corr .after { background: var(--tint); }
+  .corr .after .k { color: var(--olive); }
+  .corr .after p { font-weight: 600; }
+
+  @media (max-width: 720px) {
+    .corr { grid-template-columns: 1fr; }
+    .corr > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 480px) {
+    .theme { grid-template-columns: 1fr; }
+    .theme .rank { grid-row: auto; font-size: 26px; }
+    .ps .body { font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { mark { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Vello · Design Week · Day 2</div>
+    <h1>Research Synthesis and Problem Statements</h1>
+    <p class="lede">Six Kestrel Park discovery interviews: 3 requesters (P01 to P03), 2 providers (P04, P05) and 1 community admin (P06). Full evidence, with verbatim quotes and contradicting evidence, lives in <code>day2-interview-synthesis.md</code>.</p>
+    <div class="panel">
+      <div class="who-row">
+        <span class="pchip"><i class="r-req"></i>P01 to P03 <small>Requesters</small></span>
+        <span class="pchip"><i class="r-prov"></i>P04, P05 <small>Providers</small></span>
+        <span class="pchip"><i class="r-admin"></i>P06 <small>Community admin</small></span>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Sections">
+    <button class="tab" type="button" data-show="all" aria-pressed="true">All</button>
+    <button class="tab" type="button" data-show="themes" aria-pressed="false">Themes <span class="ct">4</span></button>
+    <button class="tab" type="button" data-show="problems" aria-pressed="false">Problem statements <span class="ct">3</span></button>
+    <button class="tab" type="button" data-show="corrections" aria-pressed="false">Where I corrected Claude <span class="ct">4</span></button>
+  </nav>
+
+  <section id="themes" data-sec="themes">
+    <div class="sec-head">
+      <h2>Audited themes</h2>
+      <p class="note">Ranked by how many participants raised each one. Themes 5 to 10 have not been audited yet, so they stay in the full synthesis and don't feed the problem statements.</p>
+    </div>
+    <div class="themes" id="theme-list"></div>
+
+    <div class="shallow">
+      <span class="k">Loud but shallow</span>
+      <h3>Price fairness</h3>
+      <div class="reach"><b>Raised by 3 of 6 · no first-hand overcharge</b></div>
+      <p>It sounded like a top theme. P06's line that unconnected older residents "get charged four hundred pounds for a job worth eighty" is the most memorable in the interviews. On audit, only 3 participants raised it, and no one described an overcharge that actually happened to them. P06 heard it secondhand ("I hear about it afterwards from a daughter or a son"), and P03's daughter describes a fear, not an event: "She'd pay it and not tell me."</p>
+    </div>
+  </section>
+
+  <section id="problems" data-sec="problems">
+    <div class="sec-head">
+      <h2>Problem statements, ranked</h2>
+      <p class="note">Each statement is built from four parts. Pick a part to isolate it across all three statements.</p>
+    </div>
+    <div class="legend" role="group" aria-label="Highlight a part">
+      <span class="lbl">Highlight</span>
+      <button class="key" type="button" data-part="who" aria-pressed="false"><i></i>Who</button>
+      <button class="key" type="button" data-part="what" aria-pressed="false"><i></i>What</button>
+      <button class="key" type="button" data-part="why" aria-pressed="false"><i></i>Why</button>
+      <button class="key" type="button" data-part="imp" aria-pressed="false"><i></i>Business impact</button>
+      <button class="key reset" type="button" id="plain" aria-pressed="false">Plain text</button>
+    </div>
+
+    <div class="statements" id="statements">
+      <article class="ps">
+        <div class="ps-top"><span class="rank">1</span><h3>Requesters struggle to find trusted providers outside their existing network</h3></div>
+        <p class="body"><mark class="who"><span class="tag">Who</span>Requesters with few local connections</mark> <mark class="what"><span class="tag">What</span>often have no one to ask when they need someone to work in their home.</mark> <mark class="why"><span class="tag">Why</span>Because trust in local providers is largely built through personal recommendations, they may have to rely on sources they trust less or wait until someone happens to recommend a provider.</mark> <mark class="imp"><span class="tag">Impact</span>This is a problem because requesters may delay getting help or avoid booking altogether, limiting Vello's ability to serve people who do not already have a strong local network.</mark></p>
+      </article>
+
+      <article class="ps">
+        <div class="ps-top"><span class="rank">2</span><h3>Providers struggle to reach customers beyond their existing network</h3></div>
+        <p class="body"><mark class="who"><span class="tag">Who</span>Providers who rely on word of mouth</mark> <mark class="what"><span class="tag">What</span>have limited ways to reach customers outside their existing referral network.</mark> <mark class="why"><span class="tag">Why</span>Their ability to grow depends on how many people already know and recommend them, rather than simply on the quality of their work.</mark> <mark class="imp"><span class="tag">Impact</span>This is a problem because good providers can struggle to find new customers, limiting the supply available on Vello and making it harder for the marketplace to grow.</mark></p>
+      </article>
+
+      <article class="ps">
+        <div class="ps-top"><span class="rank">3</span><h3>Requesters are less likely to trust a provider based on platform checks alone</h3></div>
+        <p class="body"><mark class="who"><span class="tag">Who</span>Requesters</mark> <mark class="what"><span class="tag">What</span>often place more trust in a recommendation from someone they know than in checks or assurances provided by a company.</mark> <mark class="why"><span class="tag">Why</span>When there is no personal recommendation behind a provider, requesters may continue looking for help through their existing networks instead of booking through Vello.</mark> <mark class="imp"><span class="tag">Impact</span>This is a problem because Vello may struggle to turn new requesters into bookings and repeat users, limiting the value of the app.</mark></p>
+      </article>
+    </div>
+  </section>
+
+  <section id="corrections" data-sec="corrections">
+    <div class="sec-head">
+      <h2>Where I corrected Claude</h2>
+      <p class="note">Four claims from Claude's first draft that did not survive the audit against the transcripts.</p>
+    </div>
+    <div class="corrections">
+      <div class="corr">
+        <div class="before"><span class="k">Claude's first draft</span><p>Price fairness was the #2 problem, related to the story of: "£400 for an £80 job"</p></div>
+        <div class="after"><span class="k">Correction</span><p>Dropped out of the top three. Flagged as loud but shallow</p></div>
+        <div><span class="k">Why it mattered</span><p>No one described an overcharge that actually happened to them.</p></div>
+      </div>
+      <div class="corr">
+        <div class="before"><span class="k">Claude's first draft</span><p>"A named person's word outweighs platform checks," with P02 counted in support</p></div>
+        <div class="after"><span class="k">Correction</span><p>Reframed to "trust comes from a named person who vouches"</p></div>
+        <div><span class="k">Why it mattered</span><p>Only P01 and P05 compared vouching with checks. P02, counted as support, is the strongest voice for checks.</p></div>
+      </div>
+      <div class="corr">
+        <div class="before"><span class="k">Claude's first draft</span><p>"People without a network are locked out," with P05 counted</p></div>
+        <div class="after"><span class="k">Correction</span><p>"Hard to get into," count cut</p></div>
+        <div><span class="k">Why it mattered</span><p>P05 is inside the network and was talking about his younger self. P04 has 14 clients, so growth is slow but not blocked.</p></div>
+      </div>
+      <div class="corr">
+        <div class="before"><span class="k">Claude's first draft</span><p>"Showing up matters more than safety credentials"</p></div>
+        <div class="after"><span class="k">Correction</span><p>Reframed as "reliability is the quality most often named"</p></div>
+        <div><span class="k">Why it mattered</span><p>Only P01 compared reliability with credentials, while reliability was the characteristic mentioned the most.</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const ROLE = { P01: 'req', P02: 'req', P03: 'req', P04: 'prov', P05: 'prov', P06: 'admin' };
+  const ALL = ['P01', 'P02', 'P03', 'P04', 'P05', 'P06'];
+
+  const THEMES = [
+    { title: 'Trust comes from a named person who vouches', raised: ['P01','P02','P04','P05','P06'], quotes: [
+      ['P01', '"If you gave me the choice between a man with a certificate who I\'ve never seen before and a man with no certificate who Priya has used for two years, I\'m taking Priya\'s man."'],
+      ['P02', '"It\'s a person taking responsibility, that\'s not the same as a company saying trust us."'],
+      ['P04', 'All 14 regular clients came by referral, with no advertising.'],
+      ['P05', '"They don\'t find me, they know me."'],
+      ['P06', '"Somebody who lives here has to have used them and said they were good."'] ] },
+    { title: 'The referral network is hard to get into', raised: ['P02','P03','P04','P06'], quotes: [
+      ['P02', '"Everyone tells you word of mouth, word of mouth, and it\'s like, yes, but I need a mouth."'],
+      ['P03', 'On neighbours she could ask: "None, I should think. I wouldn\'t knock on a door."'],
+      ['P04', '"If I want two new clients this month, I can\'t make that happen."'],
+      ['P06', '"So the list is a bit of a closed shop and I\'m aware of it."'] ] },
+    { title: 'Reliability is the quality most often named', raised: ['P01','P03','P04','P05'], quotes: [
+      ['P01', 'On what they want to know: "Whether he\'ll turn up." Their previous cleaner "cancelled the morning of, three times."'],
+      ['P03', '"Just tell me a time. Not a window, a time."'],
+      ['P04', 'Clients "care that I come on the day I said and that I\'m the same person every week."'],
+      ['P05', '"Turning up. That\'s ninety per cent of it."'] ] },
+    { title: 'Ongoing work is a different job from one-offs', raised: ['P01','P02','P04','P05'], quotes: [
+      ['P01', '"One-off thing, in and out, I don\'t care who it is, just be competent. Ongoing thing, someone in my house, someone with my kids, completely different question."'],
+      ['P04', '"If I\'m on time three times, we\'re fine after that, they stop watching." and "The key is the moment."'],
+      ['P02', '"And Marta\'s got a key now."'],
+      ['P05', 'For small jobs "they\'ll get someone off the internet."'] ] }
+  ];
+
+  function dots(raised) {
+    return ALL.map(p => raised.includes(p)
+      ? `<span class="dot ${ROLE[p]}" title="${p} raised it">${p.slice(1)}</span>`
+      : `<span class="dot off" title="${p} did not">${p.slice(1)}</span>`).join('');
+  }
+
+  const list = document.getElementById('theme-list');
+  list.innerHTML = THEMES.map((t, i) => `
+    <article class="theme">
+      <span class="rank">${i + 1}</span>
+      <h3>${t.title}</h3>
+      <div class="reach"><div class="dots" aria-label="Raised by ${t.raised.join(', ')}">${dots(t.raised)}</div><b>${t.raised.length} of 6</b></div>
+      <div>
+        <ul class="quotes" id="q${i}">
+          ${t.quotes.map(([p, q]) => `<li><span class="pid ${ROLE[p]}">${p}</span><p>${q}</p></li>`).join('')}
+        </ul>
+        <button class="toggle" type="button" aria-controls="q${i}" aria-expanded="true">Hide what they said</button>
+      </div>
+    </article>`).join('');
+
+  list.addEventListener('click', e => {
+    const b = e.target.closest('.toggle'); if (!b) return;
+    const ul = document.getElementById(b.getAttribute('aria-controls'));
+    const open = b.getAttribute('aria-expanded') === 'true';
+    ul.hidden = open;
+    b.setAttribute('aria-expanded', String(!open));
+    b.textContent = open ? `Show what they said (${ul.children.length})` : 'Hide what they said';
+  });
+
+  // Section filter
+  const tabs = document.querySelectorAll('.tab');
+  const secs = document.querySelectorAll('[data-sec]');
+  function show(which) {
+    tabs.forEach(t => t.setAttribute('aria-pressed', String(t.dataset.show === which)));
+    secs.forEach(s => { s.hidden = which !== 'all' && s.dataset.sec !== which; });
+  }
+  tabs.forEach(t => t.addEventListener('click', () => {
+    show(t.dataset.show);
+    window.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }));
+  const h = location.hash.slice(1);
+  if (['themes', 'problems', 'corrections'].includes(h)) show(h);
+
+  // Problem statement highlighting
+  const st = document.getElementById('statements');
+  const keys = document.querySelectorAll('.key[data-part]');
+  const plain = document.getElementById('plain');
+  keys.forEach(k => k.addEventListener('click', () => {
+    const on = k.getAttribute('aria-pressed') !== 'true';
+    keys.forEach(x => x.setAttribute('aria-pressed', 'false'));
+    plain.setAttribute('aria-pressed', 'false');
+    st.querySelectorAll('.ps').forEach(p => p.classList.remove('plain'));
+    if (on) { k.setAttribute('aria-pressed', 'true'); st.dataset.focus = k.dataset.part; }
+    else delete st.dataset.focus;
+  }));
+  plain.addEventListener('click', () => {
+    const on = plain.getAttribute('aria-pressed') !== 'true';
+    plain.setAttribute('aria-pressed', String(on));
+    keys.forEach(x => x.setAttribute('aria-pressed', 'false'));
+    delete st.dataset.focus;
+    st.querySelectorAll('.ps').forEach(p => p.classList.toggle('plain', on));
+  });
+</script>

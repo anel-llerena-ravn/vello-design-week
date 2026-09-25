@@ -1,0 +1,262 @@
+<title>Handoff and Design-Support Checklists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#F6F2E7; --band:#EFEADB; --card:#FFFFFF; --line:#E5E4D6; --line-strong:#D6D6C6;
+  --ink:#1B1C18; --ink-2:#3D3F37; --ink-3:#6E7064;
+  --find:#557E26; --find-ink:#466621; --find-tint:#EBF1DB; --on-find:#FFFFFF;
+  --warn:#B4561F; --warn-ink:#9A4518; --warn-tint:#FBE8DC;
+  --shadow:0 1px 2px rgba(27,28,24,.06),0 8px 24px rgba(27,28,24,.08);
+  --display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;
+  --ui:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#12160F; --band:#181D14; --card:#1D2319; --line:#2C3325; --line-strong:#3A4231;
+    --ink:#EEECE1; --ink-2:#CFCDBF; --ink-3:#A2A396;
+    --find:#8FB663; --find-ink:#B6CF92; --find-tint:#26331A; --on-find:#12160F;
+    --warn:#F0A070; --warn-ink:#F5B891; --warn-tint:#3A2518;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#12160F; --band:#181D14; --card:#1D2319; --line:#2C3325; --line-strong:#3A4231;
+  --ink:#EEECE1; --ink-2:#CFCDBF; --ink-3:#A2A396;
+  --find:#8FB663; --find-ink:#B6CF92; --find-tint:#26331A; --on-find:#12160F;
+  --warn:#F0A070; --warn-ink:#F5B891; --warn-tint:#3A2518;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:40px 64px;display:grid;gap:36px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(30px,5vw,46px);font-weight:700;line-height:1.06}
+h2{font-size:clamp(22px,3vw,28px);font-weight:700;line-height:1.15}
+h3{font-size:18px;font-weight:700;line-height:1.3}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--find-ink)}
+.intro{display:grid;gap:16px;max-width:780px}
+.lede{font-size:17px;color:var(--ink-2);max-width:65ch}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line)}
+.tabs{display:inline-flex;flex-wrap:wrap;background:var(--band);border:1px solid var(--line);border-radius:999px;padding:3px}
+.tabs button{font:600 14px/1 var(--ui);color:var(--ink-2);background:none;border:0;border-radius:999px;padding:10px 18px;min-height:42px;cursor:pointer}
+.tabs button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--find);outline-offset:2px}
+body[data-view="handoff"] #support,body[data-view="support"] #handoff{display:none}
+
+.view{display:grid;gap:32px}
+.viewhead{display:grid;gap:10px;max-width:72ch}
+.viewhead p{color:var(--ink-2)}
+.test{font-family:var(--display);font-size:19px;font-weight:500;line-height:1.35;color:var(--find-ink);padding:16px 20px;border-radius:14px;background:var(--find-tint)}
+
+/* progress */
+.progress{display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px}
+.bar{flex:1 1 200px;height:8px;border-radius:999px;background:var(--band);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--find);border-radius:999px;transition:width .2s ease}
+.progress__num{font:600 14px var(--mono);font-variant-numeric:tabular-nums;color:var(--ink)}
+.progress__state{font-size:13px;font-weight:600;border-radius:999px;padding:5px 10px;background:var(--warn-tint);color:var(--warn-ink)}
+.progress__state.is-ready{background:var(--find-tint);color:var(--find-ink)}
+.reset{font:600 13px var(--ui);color:var(--ink-2);background:none;border:1px solid var(--line-strong);border-radius:999px;padding:8px 14px;min-height:36px;cursor:pointer}
+
+.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px;align-items:start}
+.group{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:12px}
+.group__head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.group__count{font:600 12px var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.group.is-done .group__count{color:var(--find-ink)}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.check{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start;padding:8px 6px;border-radius:10px;cursor:pointer;color:var(--ink-2)}
+.check:hover{background:var(--band)}
+.check input{appearance:none;width:20px;height:20px;margin:2px 0 0;border:2px solid var(--find);border-radius:5px;display:grid;place-items:center;cursor:pointer;background:var(--card)}
+.check input:checked{background:var(--find)}
+.check input:checked::after{content:"";width:10px;height:6px;border-left:2px solid var(--on-find);border-bottom:2px solid var(--on-find);transform:translateY(-1px) rotate(-45deg)}
+.check input:checked + span{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--line-strong)}
+
+/* support */
+.principle{display:grid;gap:6px;padding:18px 20px;border-radius:14px;background:var(--find-tint);max-width:72ch}
+.principle b{font-family:var(--display);font-size:22px;color:var(--find-ink)}
+.principle p{color:var(--ink-2)}
+.phases{display:flex;flex-wrap:wrap;gap:6px}
+.phases button{font:600 13px/1 var(--ui);color:var(--ink-2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 14px;min-height:38px;cursor:pointer}
+.phases button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.phase{display:grid;gap:12px;scroll-margin-top:90px}
+.phase__head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.phase__tag{font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.rows{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--card);overflow:hidden}
+.row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:8px 28px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row__do{font-weight:600;color:var(--ink)}
+.row__fail{color:var(--ink-3);font-size:14px;display:grid;gap:2px}
+.row__fail::before{content:"Prevents";font:600 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--warn-ink)}
+.colheads{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:28px;padding:0 18px;font:600 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+@media (max-width:640px){.row{grid-template-columns:1fr}.colheads{display:none}}
+
+.foot{font-size:13px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:20px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<main class="wrap">
+  <header class="intro">
+    <p class="eyebrow">Design Week · Close of week · Product track</p>
+    <h1>How product works with design</h1>
+    <p class="lede">Two tools from the week. The handoff checklist is a gate: nothing moves to design until every box is checked. The design-support checklist is how product works alongside design in every phase, so design can do its best work.</p>
+  </header>
+
+  <div class="controls">
+    <div class="tabs" role="group" aria-label="Checklist">
+      <button type="button" id="tab-handoff" data-view="handoff" aria-pressed="true">Handoff checklist</button>
+      <button type="button" id="tab-support" data-view="support" aria-pressed="false">Design-support checklist</button>
+    </div>
+  </div>
+
+  <!-- ============ HANDOFF ============ -->
+  <section id="handoff" class="view" aria-labelledby="tab-handoff">
+    <div class="viewhead">
+      <h2>Brief to design</h2>
+      <p>A gate for the moment work changes hands between product and design. Every box is checked before the work moves on. If a box can't be checked, it's either fixed or written down as an open question with an owner and a default answer.</p>
+    </div>
+    <p class="test">The test: could a designer with no extra context build a coherent flow from this brief alone?</p>
+
+    <div class="progress" aria-live="polite">
+      <span class="progress__num" id="pnum">0 of 0</span>
+      <span class="bar" aria-hidden="true"><i id="pbar"></i></span>
+      <span class="progress__state" id="pstate">Not ready to hand off</span>
+      <button type="button" class="reset" id="reset">Clear all</button>
+    </div>
+
+    <div class="groups" id="groups"></div>
+  </section>
+
+  <!-- ============ SUPPORT ============ -->
+  <section id="support" class="view" aria-labelledby="tab-support">
+    <div class="viewhead">
+      <h2>Product design-support checklist</h2>
+      <p>Design owns the solution and the final UX call. Product's job is to make sure design is solving the right problem, with the right evidence, inside clear limits, and to catch weak decisions before they reach the user.</p>
+    </div>
+    <div class="principle">
+      <b>Guesses are messes.</b>
+      <p>Every gap product leaves in a conversation, design fills with a guess, so communication is direct, written down and early.</p>
+    </div>
+    <div class="phases" role="group" aria-label="Filter by phase" id="phasefilter"></div>
+    <div id="phaselist" class="view"></div>
+  </section>
+
+  <p class="foot">Product Management trainee deliverables for Ravn's Design Week, using the fictional Vello app as the working product.</p>
+</main>
+
+<script>
+(function(){
+  var HANDOFF=[
+    {name:"Problem",items:[
+      "The problem names who has it, what the pain is and why it matters, with no feature, screen or UI element in it",
+      "Every solution-shaped request behind the work has been rewritten as a problem (“add a badge” becomes “residents don't know what makes a stranger trustworthy”)",
+      "The solution is explicitly left to design"]},
+    {name:"Evidence",items:[
+      "Each finding links back to a source: a verbatim quote, a data point or a product audit",
+      "AI-generated synthesis was manually checked against the transcripts",
+      "Unaudited findings and single-participant claims are marked as such",
+      "Missing evidence is named, including which user group hasn't been heard from yet"]},
+    {name:"Goal",items:[
+      "One primary metric with a baseline and a target",
+      "Any term the metric depends on is defined (“completed booking” means confirmed and marked done)",
+      "The metric can actually be measured in the current product"]},
+    {name:"Scope and constraints",items:[
+      "What's in and out of scope is explicit, including separate systems the flow must not touch",
+      "Existing features the flow must keep are listed by name, so a new feature can't quietly replace one",
+      "Constraints describe what must be true, not how the screen should look",
+      "Technical and business limits are flagged now, not discovered during build (for example, no payment step exists)",
+      "Every trust or safety rule the product depends on is stated"]},
+    {name:"Flow and states",items:[
+      "Required states are listed for every action: empty, loading, success, error, partial and, where the flow needs access, permission denied",
+      "Known edge cases are written down before design starts (no replies, the other side declines, a cancellation)"]}
+  ];
+  var SUPPORT=[
+    {id:"designer",name:"Working with the designer partner, from day one",short:"Working with the designer",rows:[
+      ["Bring the designer in from the start: discovery, client meetings and problem framing, not only once the brief is written","Design receiving a finished brief with no chance to question the problem"],
+      ["Say what's critical and what can wait, and name the trade-offs when two needs compete","Design spending effort on the wrong thing, or guessing at priorities"],
+      ["Give feedback as a fresh pair of eyes, as a partner, not as a judge or a competitor","Critique that feels like a contest, so issues get defended instead of fixed"]]},
+    {id:"discover",name:"Discover",short:"Discover",rows:[
+      ["Hand design a sharp problem, so research looks in the right place","Building the right solution to the wrong problem"],
+      ["Match the research method to the question: interviews for why, data for how many","Treating a few loud quotes as a trend, or a number as a reason"],
+      ["Plan neutral interview questions that cover every side of the problem","Research that confirms what the team believed, or gaps found only at synthesis"],
+      ["Audit AI synthesis against the transcripts before sharing it","Overstated themes becoming “facts” in the brief"],
+      ["Name the least-understood role and the unproven business assumptions","Design optimizing for the easy user and missing the risky one"]]},
+    {id:"define",name:"Define",short:"Define",rows:[
+      ["Rewrite solution-shaped requests as problems before they reach design","A brief that closes the design space before design starts"],
+      ["Rank problem statements by depth of evidence, not by how often they came up","Prioritizing what's loud over what's real"],
+      ["State goals, definitions and constraints up front","Design guessing at business rules"]]},
+    {id:"architect",name:"Architect",short:"Architect",rows:[
+      ["Agree the journey and the goal of each phase before anyone draws screens","Prescribing screens before the structure is agreed"],
+      ["Stress-test every flow for the different states: success, empty, loading, error, partial, cancelled and permission states","A flow that only works on the happy path"]]},
+    {id:"design",name:"Design",short:"Design",rows:[
+      ["Supply real edge-case content, not layout opinions","Designs that only look right with perfect data"],
+      ["Set user and business objectives before giving feedback","Critique that turns into personal preference"],
+      ["Do an own critique pass before asking AI, then compare","AI output anchoring what product sees"],
+      ["Phrase feedback as goal-framed questions and flag taste as taste","Pixel feedback that design can't act on"]]},
+    {id:"validate",name:"Validate and hand off",short:"Validate and hand off",rows:[
+      ["Write a design-ready brief: who has the problem, what the problem is, why it matters, the evidence, the goal and the constraints","A brief that jumps to a solution or leaves design to guess the basics"],
+      ["Start from the problem statement, and leave the solution to design","A brief that closes the design space before design starts"],
+      ["Run the handoff checklist before work changes hands","Gaps discovered during build"]]},
+    {id:"ai",name:"Across every phase: working with AI",short:"Working with AI",rows:[
+      ["Treat AI output as a draft: judge it against the user, the brief and the evidence","Shipping the first output"],
+      ["Ask for the evidence behind each claim and check it yourself","Confident claims with nothing behind them"],
+      ["Push back and iterate in conversation","Accepting a first answer that's close but wrong"],
+      ["Don't skip the designer by generating finished UI","Design reduced to decorating product's screens"]]}
+  ];
+  var KEY='vello-handoff-checks', saved={};
+  try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){saved={};}
+  function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+
+  var groups=document.getElementById('groups');
+  groups.innerHTML=HANDOFF.map(function(g,gi){
+    return '<section class="group" data-g="'+gi+'"><div class="group__head"><h3>'+g.name+'</h3><span class="group__count"></span></div><ul class="checks">'+
+      g.items.map(function(it,ii){var id='c'+gi+'-'+ii;return '<li><label class="check" for="'+id+'"><input type="checkbox" id="'+id+'"'+(saved[id]?' checked':'')+'><span>'+esc(it)+'</span></label></li>';}).join('')+
+      '</ul></section>';
+  }).join('');
+
+  function update(){
+    var all=groups.querySelectorAll('input'), done=0, state={};
+    all.forEach(function(i){if(i.checked){done++;state[i.id]=1;}});
+    groups.querySelectorAll('.group').forEach(function(g){
+      var ins=g.querySelectorAll('input'), d=[].filter.call(ins,function(i){return i.checked;}).length;
+      g.querySelector('.group__count').textContent=d+' / '+ins.length;
+      g.classList.toggle('is-done',d===ins.length);
+    });
+    document.getElementById('pnum').textContent=done+' of '+all.length+' checked';
+    document.getElementById('pbar').style.width=(all.length?done/all.length*100:0)+'%';
+    var st=document.getElementById('pstate'), ready=done===all.length;
+    st.textContent=ready?'Ready to hand off':'Not ready to hand off';
+    st.classList.toggle('is-ready',ready);
+    try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}
+  }
+  groups.addEventListener('change',update);
+  document.getElementById('reset').addEventListener('click',function(){groups.querySelectorAll('input').forEach(function(i){i.checked=false;});update();});
+  update();
+
+  var filter=document.getElementById('phasefilter'), list=document.getElementById('phaselist');
+  filter.innerHTML='<button type="button" data-p="all" aria-pressed="true">All</button>'+SUPPORT.map(function(p){return '<button type="button" data-p="'+p.id+'" aria-pressed="false">'+p.short+'</button>';}).join('');
+  list.innerHTML=SUPPORT.map(function(p){
+    return '<section class="phase" data-p="'+p.id+'"><div class="phase__head"><h3>'+p.name+'</h3></div>'+
+      '<div class="colheads" aria-hidden="true"><span>What product does</span><span>Failure it prevents</span></div>'+
+      '<ul class="rows">'+p.rows.map(function(r){return '<li class="row"><span class="row__do">'+esc(r[0])+'</span><span class="row__fail">'+esc(r[1])+'</span></li>';}).join('')+'</ul></section>';
+  }).join('');
+  filter.addEventListener('click',function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    filter.querySelectorAll('button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});
+    list.querySelectorAll('.phase').forEach(function(s){s.hidden=!(b.dataset.p==='all'||s.dataset.p===b.dataset.p);});
+  });
+
+  function setView(v,noHash){
+    document.body.dataset.view=v;
+    document.querySelectorAll('.tabs button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.view===v));});
+    if(!noHash){try{history.replaceState(null,'','#'+v);}catch(e){}}
+  }
+  document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){setView(b.dataset.view);});});
+  setView((location.hash||'').replace('#','')==='support'?'support':'handoff',true);
+})();
+</script>

@@ -1,0 +1,342 @@
+<title>First Booking Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+:root{
+  --bg:#F6F2E7; --band:#EFEADB; --card:#FFFFFF; --line:#E5E4D6; --line-strong:#D6D6C6;
+  --ink:#1B1C18; --ink-2:#3D3F37; --ink-3:#6E7064;
+  --find:#557E26; --find-ink:#466621; --find-tint:#EBF1DB; --on-find:#FFFFFF;
+  --gap:#B4561F; --gap-ink:#9A4518; --gap-tint:#FBE8DC; --gap-bg:#FEF4EE;
+  --shadow:0 1px 2px rgba(27,28,24,.06),0 8px 24px rgba(27,28,24,.08);
+  --display:"Bricolage Grotesque","Hanken Grotesk",system-ui,sans-serif;
+  --ui:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#12160F; --band:#181D14; --card:#1D2319; --line:#2C3325; --line-strong:#3A4231;
+    --ink:#EEECE1; --ink-2:#CFCDBF; --ink-3:#A2A396;
+    --find:#8FB663; --find-ink:#B6CF92; --find-tint:#26331A; --on-find:#12160F;
+    --gap:#F0A070; --gap-ink:#F5B891; --gap-tint:#3A2518; --gap-bg:#261A12;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#12160F; --band:#181D14; --card:#1D2319; --line:#2C3325; --line-strong:#3A4231;
+  --ink:#EEECE1; --ink-2:#CFCDBF; --ink-3:#A2A396;
+  --find:#8FB663; --find-ink:#B6CF92; --find-tint:#26331A; --on-find:#12160F;
+  --gap:#F0A070; --gap-ink:#F5B891; --gap-tint:#3A2518; --gap-bg:#261A12;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:15px;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:40px 64px;display:grid;gap:40px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(30px,5vw,46px);font-weight:700;line-height:1.06}
+h2{font-size:clamp(22px,3vw,28px);font-weight:700;line-height:1.15}
+h3{font-size:17px;font-weight:700;line-height:1.3}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--find-ink)}
+.intro{display:grid;gap:16px;max-width:780px}
+.lede{font-size:17px;color:var(--ink-2);max-width:65ch}
+.process{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;font-size:14px;color:var(--ink-2)}
+.process b{font-weight:600;color:var(--ink)}
+.process i{font-style:normal;color:var(--ink-3)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;justify-content:space-between;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line)}
+.tabs{display:inline-flex;background:var(--band);border:1px solid var(--line);border-radius:999px;padding:3px}
+.tabs button{font:600 14px/1 var(--ui);color:var(--ink-2);background:none;border:0;border-radius:999px;padding:10px 18px;min-height:42px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.tabs button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:var(--shadow)}
+.count{font:600 11px/1 var(--mono);background:var(--gap);color:var(--card);border-radius:999px;padding:4px 7px}
+.switch{display:inline-flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;min-height:42px}
+.switch input{appearance:none;width:40px;height:24px;border-radius:999px;background:var(--line-strong);position:relative;cursor:pointer;margin:0;transition:background .15s ease;flex:none}
+.switch input::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--card);transition:transform .15s ease}
+.switch input:checked{background:var(--gap)}
+.switch input:checked::after{transform:translateX(16px)}
+button:focus-visible,.switch input:focus-visible,a:focus-visible{outline:2px solid var(--find);outline-offset:2px}
+body[data-view="gaps"] .switch{visibility:hidden}
+
+.view{display:grid;gap:44px}
+body[data-view="brief"] #gaps,body[data-view="gaps"] #brief{display:none}
+
+.sec{display:grid;gap:16px;scroll-margin-top:90px}
+.sec__head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.sec__label{font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.prose{max-width:68ch;color:var(--ink-2);font-size:16px}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+thead th{font:600 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);background:var(--band)}
+td:first-child{font-weight:600;color:var(--ink);min-width:180px}
+td{color:var(--ink-2)}
+.src{display:block;margin-top:6px;font:500 12px var(--mono);color:var(--ink-3)}
+
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.why div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:6px;align-content:start}
+.why b{font-family:var(--display);font-size:16px}
+.why p{color:var(--ink-2);font-size:14px}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:12px}
+.metric{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;gap:8px;align-content:start}
+.metric__type{font:600 11px var(--mono);letter-spacing:.07em;text-transform:uppercase;color:var(--find-ink)}
+.metric__num{font-family:var(--display);font-size:40px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.metric__num small{font-family:var(--ui);font-size:14px;font-weight:500;color:var(--ink-3);margin-left:6px}
+.metric p{color:var(--ink-2);font-size:14px}
+.note{font-size:14px;color:var(--ink-2);max-width:68ch;padding:12px 16px;border-radius:12px;background:var(--band)}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.checklist li{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;color:var(--ink-2)}
+.checklist li::before{content:"";width:18px;height:18px;margin-top:2px;border:2px solid var(--find);border-radius:5px}
+.sub{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.sub li{grid-template-columns:16px 1fr;background:none;border:0;padding:0;gap:10px}
+.sub li::before{width:12px;height:12px;border-width:2px;margin-top:5px;border-radius:3px}
+.sub b{color:var(--ink)}
+
+/* prototype fix highlighting */
+.chips{display:none;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font:600 11px/1 var(--mono);color:var(--gap-ink);background:var(--gap-tint);border-radius:999px;padding:5px 8px;border:0;cursor:pointer}
+body.fixes .chips{display:flex}
+body.fixes [data-gap]{border-color:color-mix(in srgb,var(--gap) 55%,transparent)!important;background:var(--gap-bg)!important}
+body.fixes p[data-gap],body.fixes tr[data-gap] td{background:var(--gap-bg)}
+p[data-gap]{border:1px solid transparent;border-radius:12px;padding:0}
+body.fixes p[data-gap]{padding:12px 16px}
+[data-gap].flash{animation:flash 1.6s ease}
+@keyframes flash{0%,40%{box-shadow:0 0 0 4px color-mix(in srgb,var(--gap) 45%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+
+/* gaps view */
+.gaps-intro{display:grid;gap:10px;max-width:70ch}
+.gaps-intro p{color:var(--ink-2)}
+.tally{display:flex;flex-wrap:wrap;gap:8px}
+.tally span{font-size:13px;font-weight:600;color:var(--ink-2);background:var(--band);border-radius:999px;padding:6px 12px}
+.gapfilter{display:flex;flex-wrap:wrap;gap:6px}
+.gapfilter button{font:600 13px/1 var(--ui);color:var(--ink-2);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:9px 14px;min-height:38px;cursor:pointer}
+.gapfilter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.gaplist{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.gapcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:grid;grid-template-columns:40px 1fr;gap:6px 16px}
+.gapcard__n{grid-row:span 3;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:600 13px var(--mono);color:var(--gap-ink);border:2px solid var(--gap)}
+.gapcard__rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px 24px}
+.gapcard__rows div{display:grid;gap:4px}
+.lbl{font:600 11px var(--mono);letter-spacing:.07em;text-transform:uppercase}
+.lbl--gap{color:var(--gap-ink)}
+.lbl--fix{color:var(--find-ink)}
+.gapcard__rows p{color:var(--ink-2)}
+.gapcard__foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px}
+.secchip{font:500 12px var(--mono);color:var(--ink-2);background:var(--band);border-radius:6px;padding:4px 8px}
+.goto{margin-left:auto;font:600 13px var(--ui);color:var(--find-ink);background:none;border:0;cursor:pointer;padding:8px 0;min-height:36px}
+.goto:hover{text-decoration:underline}
+@media (max-width:520px){.gapcard{grid-template-columns:1fr}.gapcard__n{grid-row:auto}}
+
+.foot{font-size:13px;color:var(--ink-3);border-top:1px solid var(--line);padding-top:20px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<main class="wrap">
+  <header class="intro">
+    <p class="eyebrow">Design Week · Design-ready brief · Vello</p>
+    <h1>Newly verified providers can't get their first local booking</h1>
+    <p class="lede">A brief design can start from, tested by prototyping its core flow in Claude Design. Every decision the prototype had to make on its own became a gap, and each gap is now closed in the brief.</p>
+    <div class="process" aria-label="How the brief was built">
+      <b>Problem brief</b><i>→</i><b>Skeptical designer review</b><i>→</i><b>Prototype in Claude Design</b><i>→</i><b>8 gaps found</b><i>→</i><b>Final brief</b>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="tabs" role="group" aria-label="View">
+      <button type="button" id="tab-brief" data-view="brief" aria-pressed="true">The brief</button>
+      <button type="button" id="tab-gaps" data-view="gaps" aria-pressed="false">Gaps and fixes <span class="count">8</span></button>
+    </div>
+    <label class="switch" for="fixes"><input type="checkbox" id="fixes"> Show what the prototype changed</label>
+  </div>
+
+  <!-- ============ BRIEF ============ -->
+  <section id="brief" class="view" aria-labelledby="tab-brief">
+
+    <section class="sec" id="who">
+      <div class="sec__head"><span class="sec__label">Who</span></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Role</th><th>Who they are</th></tr></thead>
+          <tbody>
+            <tr><td>Primary: newly verified provider</td><td>A provider a Community Admin has approved who has no completed bookings on Vello yet. They may have clients elsewhere, but no one in this neighborhood has used them.</td></tr>
+            <tr><td>Secondary: requester</td><td>A neighborhood resident booking recurring help in their home, such as weekly cleaning or daily dog walks, and deciding which provider to choose.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="prose" data-gap="1">The problem shows up at the requester's decision, so the core flow to prototype is theirs: a requester posts a recurring in-home job, gets replies that include a newly verified provider, and decides whom to book.
+        <span class="chips"><button type="button" class="chip" data-open="1">Gap 1</button></span></p>
+    </section>
+
+    <section class="sec" id="what">
+      <div class="sec__head"><span class="sec__label">What</span><h2>The problem</h2></div>
+      <p class="prose">Newly verified providers have no local track record, making it difficult for requesters to decide whether to book them. Requesters often rely on recommendations from people they know when choosing someone to work in their home. A new provider has neither a personal recommendation nor a history on Vello, leaving the requester with little information beyond the Verified badge. This is a problem because providers need a first booking to build a track record, but without a track record they may struggle to get that first booking.</p>
+    </section>
+
+    <section class="sec" id="why">
+      <div class="sec__head"><span class="sec__label">Why it matters</span></div>
+      <div class="why">
+        <div><b>Providers</b><p>They joined for steady local work. If approval leads to no bookings, they leave before completing a single job.</p></div>
+        <div><b>Requesters and Vello</b><p>Vello's bet is that trust scales locally. If trust only goes to providers who are already known, Vello recreates the closed referral lists it promised to open up. Requesters without a local network, the group Vello most needs to serve, keep seeing the same few names.</p></div>
+      </div>
+    </section>
+
+    <section class="sec" id="evidence">
+      <div class="sec__head"><span class="sec__label">Evidence</span></div>
+      <p class="prose">Source: six Kestrel Park discovery interviews (Day 2). Themes 1 to 4 were audited against the transcripts. Anything else is marked unaudited.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Finding</th><th>Evidence</th></tr></thead>
+          <tbody>
+            <tr><td>Requesters find providers through a named person they know</td><td>5 of 6 (theme 1, audited). P06's rule for the trades list: "Somebody who lives here has to have used them and said they were good." This describes how people found providers before Vello, not how they choose on a platform.</td></tr>
+            <tr><td>Providers can't control how fast they get new clients</td><td>P04, established with 14 clients: "If I want two new clients this month, I can't make that happen." P06 added a provider to the trades list "about four months after she should have" because P06 didn't know the person vouching for them (theme 2, audited). No newly verified provider has been interviewed.</td></tr>
+            <tr><td>Ongoing in-home work needs more trust than one-off jobs</td><td>4 of 6 (theme 4, audited). P01: "One-off thing, in and out, I don't care who it is, just be competent. Ongoing thing, someone in my house, someone with my kids, completely different question." This is why the brief is scoped to recurring work.</td></tr>
+            <tr><td>Reliability is what requesters most want to know</td><td>4 of 6 (theme 3, audited). P01, on what they want to know: "Whether he'll turn up." P03: "Just tell me a time. Not a window, a time." P05: "Turning up. That's ninety per cent of it."</td></tr>
+            <tr><td>Star ratings are only partly trusted</td><td>P01: "Stars are meaningless, everyone's four point eight." P02: "I read them but I don't believe them." But P01 has booked a sitter "based on reviews, and she was great" (unaudited).</td></tr>
+            <tr><td>Generic local labels don't build trust</td><td>P02 on "neighbour used them": "that's just a stranger who lives nearby" (unaudited).</td></tr>
+            <tr data-gap="8"><td>One bad public record weighs heavily when it's the only one<span class="chips"><button type="button" class="chip" data-open="8">Gap 8</button></span></td><td>P04, on an unfair review they couldn't answer: "That review is still there and it's the only one I've got" (theme 8, unaudited).</td></tr>
+            <tr><td>The current flow has no design for a provider with no reviews</td><td>Day 3 flow lists "Provider has no reviews yet" as an unhandled edge case. That flow was a dog-walking journey in Bay Ridge, not Kestrel Park.</td></tr>
+            <tr data-gap="all"><td>Without explicit rules, design fills the gaps itself<span class="chips"><button type="button" class="chip" data-open="all">Prototype</button></span></td><td>The first prototype dropped existing messaging, moved payment off the platform, used a fixed radius, gave newcomers a different profile, and built only the happy path.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sec" id="goal">
+      <div class="sec__head"><span class="sec__label">Goal</span></div>
+      <div class="metrics">
+        <div class="metric">
+          <span class="metric__type">Primary</span>
+          <span class="metric__num">70%<small>from unknown</small></span>
+          <p>Share of newly verified providers with a first completed booking within 30 days of approval. The 30-day window is a starting point until booking frequency is known.</p>
+        </div>
+        <div class="metric">
+          <span class="metric__type">Secondary</span>
+          <span class="metric__num">50%<small>from unknown</small></span>
+          <p>Share of first bookings followed by a second booking from the same requester. Vello's model depends on repeat work.</p>
+        </div>
+      </div>
+      <p class="note" data-gap="5">A "completed booking" means a booking confirmed in Vello and marked done. Payment is out of scope, so it isn't part of the definition.
+        <span class="chips"><button type="button" class="chip" data-open="5">Gap 5</button></span></p>
+    </section>
+
+    <section class="sec" id="constraints">
+      <div class="sec__head"><span class="sec__label">Constraints</span></div>
+      <ul class="checklist">
+        <li data-gap="1 5 8"><div>Recurring in-home work only. One-off jobs, providers waiting for verification, disputes, payment and the provider's flow are out of scope.
+          <span class="chips"><button type="button" class="chip" data-open="1">Gap 1</button><button type="button" class="chip" data-open="5">Gap 5</button><button type="button" class="chip" data-open="8">Gap 8</button></span></div></li>
+        <li><div>Admin verification stays and happens first. This work starts after approval.</div></li>
+        <li><div>No added admin work per provider.</div></li>
+        <li><div>No funded, discounted or assigned first jobs. Vello can make a newcomer easier to choose, not pay for or hand out work.</div></li>
+        <li data-gap="3"><div>Existing features stay: messaging before booking, both booking routes, booking as a request the provider accepts, and ratings and reviews. Nothing is removed unless this brief says so.
+          <span class="chips"><button type="button" class="chip" data-open="3">Gap 3</button></span></div></li>
+        <li data-gap="6"><div>Providers reach requesters through their service area. No fixed radius, and providers don't have to live there.
+          <span class="chips"><button type="button" class="chip" data-open="6">Gap 6</button></span></div></li>
+        <li><div>Anything shown about a provider must come from a real person or a real event, with a clear source.</div></li>
+        <li data-gap="4"><div>Newly verified providers get the same information structure as established providers, not a separate or lesser format.
+          <span class="chips"><button type="button" class="chip" data-open="4">Gap 4</button></span></div></li>
+        <li data-gap="7"><div>A provider's reply is visible only to that requester. Vello uses only the requester's neighborhood, booking history and ratings, never phone contacts.
+          <span class="chips"><button type="button" class="chip" data-open="7">Gap 7</button></span></div></li>
+        <li data-gap="2"><div>Every action covers all the different states:
+          <ul class="sub">
+            <li><div><b>Loading:</b> shows the action is in progress</div></li>
+            <li><div><b>Success:</b> confirms what happened and what comes next</div></li>
+            <li><div><b>Error:</b> says what went wrong and lets the requester try again without losing what they entered</div></li>
+          </ul>
+          <span class="chips"><button type="button" class="chip" data-open="2">Gap 2</button></span></div></li>
+      </ul>
+    </section>
+  </section>
+
+  <!-- ============ GAPS ============ -->
+  <section id="gaps" class="view" aria-labelledby="tab-gaps">
+    <div class="gaps-intro">
+      <h2>What the prototype exposed</h2>
+      <p>The core flow was prototyped in Claude Design from the brief alone. Gaps came from clicking through the prototype screen by screen and from the list of decisions Claude Design reported making on its own. The problem itself held up. What changed was the scope and how precise the rules are.</p>
+      <div class="tally"><span>8 gaps</span><span>8 closed</span><span>3 reached sections beyond Constraints</span></div>
+    </div>
+
+    <div class="gapfilter" role="group" aria-label="Filter gaps by brief section">
+      <button type="button" data-sec="all" aria-pressed="true">All</button>
+      <button type="button" data-sec="Constraints" aria-pressed="false">Constraints</button>
+      <button type="button" data-sec="Who" aria-pressed="false">Who</button>
+      <button type="button" data-sec="Goal" aria-pressed="false">Goal</button>
+      <button type="button" data-sec="Evidence" aria-pressed="false">Evidence</button>
+    </div>
+
+    <ol class="gaplist" id="gaplist"></ol>
+  </section>
+
+  <p class="foot">Vello is a fictional product used for Ravn's Design Week. Interview participants P01 to P06 are from the Day 2 Kestrel Park discovery sessions.</p>
+</main>
+
+<script>
+(function(){
+  var GAPS=[
+    {n:1,gap:"Three screens went to the provider's app, which is a separate system, and took focus away from the requester's decision.",fix:"The provider's side was removed from the core flow, and the provider's flow is listed as out of scope.",secs:["Who","Constraints"]},
+    {n:2,gap:"Only the happy path was designed. No loading, failed or empty states.",fix:"Every action must cover loading, success and error states.",secs:["Constraints"]},
+    {n:3,gap:"One-to-one messaging disappeared, because the brief never said the app already had it.",fix:"Existing features are listed and must stay, including messaging before booking.",secs:["Constraints"]},
+    {n:4,gap:"Newcomers got a different, longer profile than established providers, which made them look like a weaker option.",fix:"Newly verified providers get the same information structure as everyone else.",secs:["Constraints"]},
+    {n:5,gap:"Payment moved off the platform: “You pay Ama directly.”",fix:"Payment is out of scope, and a completed booking is defined without it.",secs:["Goal","Constraints"]},
+    {n:6,gap:"Requests went out on a fixed 2-mile radius.",fix:"Requests reach providers through their service area, with no fixed radius.",secs:["Constraints"]},
+    {n:7,gap:"Nothing said who could see a provider's reply.",fix:"A provider's reply is visible only to that requester.",secs:["Constraints"]},
+    {n:8,gap:"Providers had no way to respond to a late or missed record on their profile.",fix:"Disputes are out of scope for this feature. P04's unanswerable review was added as evidence of the risk.",secs:["Evidence","Constraints"]}
+  ];
+  var body=document.body, list=document.getElementById('gaplist'), fixes=document.getElementById('fixes');
+
+  list.innerHTML=GAPS.map(function(g){
+    return '<li class="gapcard" data-secs="'+g.secs.join(' ')+'">'+
+      '<span class="gapcard__n" aria-label="Gap '+g.n+'">'+g.n+'</span>'+
+      '<div class="gapcard__rows">'+
+        '<div><span class="lbl lbl--gap">What the prototype did</span><p>'+g.gap+'</p></div>'+
+        '<div><span class="lbl lbl--fix">How the brief closes it</span><p>'+g.fix+'</p></div>'+
+      '</div>'+
+      '<div class="gapcard__foot">'+g.secs.map(function(s){return '<span class="secchip">'+s+'</span>';}).join('')+
+        '<button type="button" class="goto" data-open="'+g.n+'">Show in the brief →</button></div>'+
+    '</li>';
+  }).join('');
+
+  function setView(v,noHash){
+    body.dataset.view=v;
+    document.querySelectorAll('.tabs button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.view===v));});
+    if(!noHash){try{history.replaceState(null,'','#'+v);}catch(e){}}
+  }
+  function setFixes(on){body.classList.toggle('fixes',on);fixes.checked=on;}
+
+  document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){setView(b.dataset.view);});});
+  fixes.addEventListener('change',function(){setFixes(fixes.checked);});
+
+  document.querySelectorAll('.gapfilter button').forEach(function(b){
+    b.addEventListener('click',function(){
+      var s=b.dataset.sec;
+      document.querySelectorAll('.gapfilter button').forEach(function(x){x.setAttribute('aria-pressed',String(x===b));});
+      list.querySelectorAll('.gapcard').forEach(function(c){c.hidden=!(s==='all'||c.dataset.secs.split(' ').indexOf(s)>-1);});
+    });
+  });
+
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-open]'); if(!t) return;
+    var n=t.dataset.open;
+    if(t.classList.contains('chip')){
+      if(n==='all') return;
+      setView('gaps');
+      document.querySelectorAll('.gapfilter button')[0].click();
+      var card=list.children[Number(n)-1];
+      if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.remove('flash');void card.offsetWidth;card.setAttribute('data-gap','x');card.classList.add('flash');setTimeout(function(){card.removeAttribute('data-gap');card.classList.remove('flash');},1700);}
+      return;
+    }
+    setView('brief'); setFixes(true);
+    var hits=[].filter.call(document.querySelectorAll('#brief [data-gap]'),function(el){return el.dataset.gap.split(' ').indexOf(n)>-1;});
+    if(hits.length){
+      hits[0].scrollIntoView({behavior:'smooth',block:'center'});
+      hits.forEach(function(el){el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');});
+    }
+  });
+
+  var h=(location.hash||'').replace('#','');
+  setView(h==='gaps'?'gaps':'brief',true);
+})();
+</script>

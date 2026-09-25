@@ -1,0 +1,356 @@
+<title>Weekday Dog Walks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root {
+    --paper: #F6F2E7;
+    --card: #FFFDF7;
+    --ink: #1B1C18;
+    --muted: #5B5E52;
+    --line: #D9D6C7;
+    --forest: #16462F;
+    --olive: #557E26;
+    --persimmon: #D9502B;
+    --col-a: #ECEEDF;
+    --col-b: #E3E8D2;
+    --head-a: #D6DFC1;
+    --head-b: #CBD7B1;
+    --curve: #16462F;
+    --display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+    --body: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #131510;
+      --card: #1F231B;
+      --ink: #EDEAE0;
+      --muted: #A9AC9E;
+      --line: #343A2C;
+      --forest: #A9CFB4;
+      --olive: #9CC266;
+      --persimmon: #FF7F5C;
+      --col-a: #1A1E16;
+      --col-b: #1F2519;
+      --head-a: #28301F;
+      --head-b: #2E3824;
+      --curve: #A9CFB4;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #131510;
+    --card: #1F231B;
+    --ink: #EDEAE0;
+    --muted: #A9AC9E;
+    --line: #343A2C;
+    --forest: #A9CFB4;
+    --olive: #9CC266;
+    --persimmon: #FF7F5C;
+    --col-a: #1A1E16;
+    --col-b: #1F2519;
+    --head-a: #28301F;
+    --head-b: #2E3824;
+    --curve: #A9CFB4;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 1440px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 40px; }
+
+  header { display: grid; gap: 6px; margin-bottom: 22px; max-width: 72ch; }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--olive);
+  }
+  h1 {
+    font-family: var(--display); font-weight: 700; font-size: clamp(24px, 3.4vw, 34px);
+    line-height: 1.1; margin: 0; text-wrap: balance; color: var(--forest);
+  }
+  .scenario { margin: 4px 0 0; color: var(--muted); font-size: 14.5px; }
+
+  .scroller { overflow-x: auto; border-radius: 14px; }
+  .map {
+    display: grid;
+    grid-template-columns: 92px repeat(7, minmax(170px, 1fr));
+    min-width: 1280px;
+  }
+  .rowlabel {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); padding: 16px 12px 16px 0; display: flex; flex-direction: column; gap: 4px;
+  }
+  .rowlabel > span { display: flex; flex-direction: column; gap: 4px; }
+  .rowlabel small { text-transform: none; letter-spacing: 0; font-family: var(--body); font-size: 11.5px; }
+
+  .cell { padding: 16px 14px; }
+  .c1, .c3, .c5, .c7 { background: var(--col-a); }
+  .c2, .c4, .c6 { background: var(--col-b); }
+
+  .phase { text-align: center; padding: 14px 10px; border-bottom: 3px solid var(--paper); }
+  .phase.c1, .phase.c3, .phase.c5, .phase.c7 { background: var(--head-a); }
+  .phase.c2, .phase.c4, .phase.c6 { background: var(--head-b); }
+  .phase h2 {
+    margin: 0; font-family: var(--display); font-weight: 700; font-size: 15px;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--forest);
+  }
+  .phase .time { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+  .phase.c1 { border-top-left-radius: 14px; }
+  .phase.c7 { border-top-right-radius: 14px; }
+
+  ol.actions { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  ol.actions li { display: grid; grid-template-columns: 22px 1fr; gap: 4px; }
+  ol.actions .n { font-family: var(--mono); font-size: 12px; color: var(--olive); padding-top: 1px; font-variant-numeric: tabular-nums; }
+
+  .bubbles { display: grid; gap: 12px; align-content: start; }
+  .bubble {
+    position: relative; background: var(--card); border: 1.5px solid var(--forest);
+    border-radius: 12px; padding: 9px 11px; font-style: italic; font-size: 13.5px;
+  }
+  .bubble::after {
+    content: ""; position: absolute; left: 18px; bottom: -8px; width: 12px; height: 12px;
+    background: var(--card); border-right: 1.5px solid var(--forest); border-bottom: 1.5px solid var(--forest);
+    transform: rotate(45deg);
+  }
+  .bubble + .bubble::after { left: auto; right: 18px; }
+
+  .emo-label { justify-content: space-between; }
+  .emo-row { grid-column: 2 / span 7; position: relative; height: 230px; display: grid; grid-template-columns: repeat(7, 1fr); }
+  .emo-row > .bg:nth-child(odd) { background: var(--col-a); }
+  .emo-row > .bg:nth-child(even) { background: var(--col-b); }
+  .emo-row svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .emo-row path { fill: none; stroke: var(--curve); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+  .emo-row .mid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 5; vector-effect: non-scaling-stroke; }
+  .pt { position: absolute; transform: translate(-50%, -50%); width: 12px; height: 12px; border-radius: 50%;
+        background: var(--card); border: 3px solid var(--curve); }
+  .pt.low { border-color: var(--persimmon); background: var(--persimmon); }
+  .feel {
+    position: absolute; transform: translateX(-50%); text-align: center; width: 150px;
+    font-weight: 600; font-size: 13px; color: var(--ink);
+  }
+  .feel.low { color: var(--persimmon); }
+  .feel small { display: block; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+
+  /* Pain points and opportunities: separated from the emotion curve by a paper gap. */
+  .pain, .opp { border-top: 3px solid var(--paper); font-size: 13.5px; }
+  .pain p, .opp p { margin: 0; display: grid; grid-template-columns: 14px 1fr; gap: 6px; align-items: baseline; }
+  .pain p::before, .opp p::before { content: ""; width: 8px; height: 8px; transform: translateY(-1px); }
+  .pain p::before { border-radius: 50%; background: var(--persimmon); }
+  .opp p::before { background: var(--olive); transform: translateY(-1px) rotate(45deg); }
+  .pain p { font-weight: 600; }
+  .rowlabel.after-emo { border-top: 3px solid transparent; }
+  .opp.c1 { border-bottom-left-radius: 14px; }
+  .opp.c7 { border-bottom-right-radius: 14px; }
+
+  .hint { margin-top: 10px; font-size: 12px; color: var(--muted); }
+  @media (min-width: 1330px) { .hint { display: none; } }
+
+  .phase .goal { font-size: 12.5px; font-style: italic; color: var(--ink); margin-top: 7px; line-height: 1.35; text-wrap: balance; }
+  .chan {
+    display: inline-block; margin-top: 4px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em;
+    text-transform: uppercase; color: var(--persimmon); border: 1px solid currentColor; border-radius: 999px; padding: 1px 7px;
+  }
+  .outcome { margin-top: 26px; display: grid; gap: 12px; max-width: 900px; }
+  .outcome h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 20px; color: var(--forest); }
+  .otable { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+  .otable th, .otable td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .otable tr:last-child td { border-bottom: 0; }
+  .otable thead th { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .otable tbody th { font-weight: 600; color: var(--forest); width: 110px; }
+  .helped { margin: 0; max-width: 75ch; }
+  .helped b { color: var(--forest); }
+  .otable-wrap { overflow-x: auto; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Vello · Journey map · Requester</span>
+    <h1>Find someone to walk my dog every weekday while I'm at work</h1>
+    <p class="scenario">Sam lives in Bay Ridge with Loki, a four-year-old dog. Sam's company is ending hybrid work, and from the 15th Sam will be in the office five days a week. Loki can't stay alone that long.</p>
+  </header>
+
+  <div class="scroller">
+    <div class="map">
+      <!-- Phases -->
+      <div></div>
+      <div class="phase c1"><h2>Awareness</h2><div class="time">2 weeks before</div><div class="goal">Understand what the new schedule means for Loki</div></div>
+      <div class="phase c2"><h2>Discovery</h2><div class="time">13 days before</div><div class="goal">Find a way to care for Loki during work hours</div></div>
+      <div class="phase c3"><h2>Request</h2><div class="time">12 days before</div><div class="goal">Reach walkers who fit Loki's needs and Sam's schedule</div></div>
+      <div class="phase c4"><h2>Compare</h2><div class="time">11 days before</div><div class="goal">Narrow the replies to one walker worth meeting</div></div>
+      <div class="phase c5"><h2>Meet</h2><div class="time">10 days before</div><div class="goal">Decide whether to trust her with Loki and the home</div></div>
+      <div class="phase c6"><h2>Service</h2><div class="time">Week 1</div><div class="goal">Feel sure Loki is safe while Sam is at work</div></div>
+      <div class="phase c7"><h2>Pay &amp; review</h2><div class="time">Week 1 onward</div><div class="goal">Pay a fair price and make it a lasting routine</div></div>
+
+      <!-- Actions -->
+      <div class="rowlabel">Actions<small>What Sam does</small></div>
+      <div class="cell c1"><ol class="actions">
+        <li><span class="n">1</span><span>Learns the office is going fully in-person from the 15th<br><span class="chan">Outside the app</span></span></li>
+        <li><span class="n">2</span><span>Works out that Loki would be alone about nine hours a day<br><span class="chan">Outside the app</span></span></li>
+      </ol></div>
+      <div class="cell c2"><ol class="actions">
+        <li><span class="n">3</span><span>Asks friends and neighbors for a trusted walker, but no one is free or close enough<br><span class="chan">Outside the app</span></span></li>
+        <li><span class="n">4</span><span>Turns to Vello, hoping to find someone nearby that neighbors already trust</span></li>
+      </ol></div>
+      <div class="cell c3"><ol class="actions">
+        <li><span class="n">5</span><span>Posts a request describing Loki's temperament, the weekday schedule and the budget</span></li>
+        <li><span class="n">6</span><span>Waits for replies, wondering whether anyone can commit to every weekday</span></li>
+      </ol></div>
+      <div class="cell c4"><ol class="actions">
+        <li><span class="n">7</span><span>Reviews the walkers who replied, looking for someone reliable and close by</span></li>
+        <li><span class="n">8</span><span>Compares availability, reviews and price to narrow it down</span></li>
+        <li><span class="n">9</span><span>Messages the favorite to ask questions and arrange a meeting</span></li>
+      </ol></div>
+      <div class="cell c5"><ol class="actions">
+        <li><span class="n">10</span><span>Meets Elena in person and watches how she gets on with Loki<br><span class="chan">In person</span></span></li>
+        <li><span class="n">11</span><span>Books a recurring weekday walk, feeling confident after the meeting</span></li>
+      </ol></div>
+      <div class="cell c6"><ol class="actions">
+        <li><span class="n">12</span><span>Hands over access to the home before leaving for work</span></li>
+        <li><span class="n">13</span><span>Keeps checking the phone during the day, waiting for news</span></li>
+        <li><span class="n">14</span><span>Gets an update after the first walk and starts to relax</span></li>
+      </ol></div>
+      <div class="cell c7"><ol class="actions">
+        <li><span class="n">15</span><span>Pays for the week's walks and checks the charge matches what was agreed</span></li>
+        <li><span class="n">16</span><span>Rates Elena to thank her and help other neighbors</span></li>
+        <li><span class="n">17</span><span>Keeps her for future walks as the routine settles</span></li>
+        <li><span class="n">18</span><span>Notices Loki is calmer and happier at home</span></li>
+      </ol></div>
+
+      <!-- Mindset -->
+      <div class="rowlabel">Mindset<small>What Sam thinks</small></div>
+      <div class="cell c1 bubbles">
+        <div class="bubble">“Loki can’t be alone all day.”</div>
+      </div>
+      <div class="cell c2 bubbles">
+        <div class="bubble">“Everyone I know is busy.”</div>
+        <div class="bubble">“I need someone I can trust with my keys.”</div>
+      </div>
+      <div class="cell c3 bubbles">
+        <div class="bubble">“Will anyone be free every single weekday?”</div>
+        <div class="bubble">“How much should I say about the keys?”</div>
+      </div>
+      <div class="cell c4 bubbles">
+        <div class="bubble">“They all look the same on paper.”</div>
+        <div class="bubble">“Will Loki like her?”</div>
+      </div>
+      <div class="cell c5 bubbles">
+        <div class="bubble">“Loki took to her straight away.”</div>
+        <div class="bubble">“She noticed the leash pulling before I said anything.”</div>
+      </div>
+      <div class="cell c6 bubbles">
+        <div class="bubble">“Did she lock the door?”</div>
+        <div class="bubble">“Is Loki okay?”</div>
+      </div>
+      <div class="cell c7 bubbles">
+        <div class="bubble">“Is this weekly or per walk?”</div>
+        <div class="bubble">“Worth it for the peace of mind.”</div>
+        <div class="bubble">“Same person every day, just like I wanted.”</div>
+      </div>
+
+      <!-- Emotions -->
+      <div class="rowlabel emo-label">
+        <span>Emotions<small>How Sam feels</small></span>
+      </div>
+      <div class="emo-row" id="emo" aria-label="Emotion curve: worried at first, rises through comparing and meeting Elena, drops to its lowest during the first walk, then rises to content">
+        <div class="bg"></div><div class="bg"></div><div class="bg"></div><div class="bg"></div>
+        <div class="bg"></div><div class="bg"></div><div class="bg"></div>
+      </div>
+
+      <!-- Pain points -->
+      <div class="rowlabel after-emo">Pain points<small>What Vello needs to solve</small></div>
+      <div class="cell pain c1"><p>Doesn’t know who nearby could help</p></div>
+      <div class="cell pain c2"><p>Hard to tell who is safe to let in</p></div>
+      <div class="cell pain c3"><p>Unsure what to share, or if anyone will reply</p></div>
+      <div class="cell pain c4"><p>Walkers look alike on paper</p></div>
+      <div class="cell pain c5"><p>A first meeting happens outside the app</p></div>
+      <div class="cell pain c6"><p>No sign the walk happened</p></div>
+      <div class="cell pain c7"><p>Unclear what the price covers</p></div>
+
+      <!-- Opportunities -->
+      <div class="rowlabel after-emo">Opportunities<small>How Vello can address it</small></div>
+      <div class="cell opp c1"><p>Show walkers that neighbors already use</p></div>
+      <div class="cell opp c2"><p>Explain what “verified” means</p></div>
+      <div class="cell opp c3"><p>Guide what to include and confirm who received it</p></div>
+      <div class="cell opp c4"><p>Put schedule fit and neighbor reviews first</p></div>
+      <div class="cell opp c5"><p>Make the meeting part of booking</p></div>
+      <div class="cell opp c6"><p>Send a short update after every walk</p></div>
+      <div class="cell opp c7"><p>Show one clear weekly price</p></div>
+    </div>
+  </div>
+  <p class="hint">Scroll sideways to see all seven phases.</p>
+
+  <section class="outcome">
+    <h2>Outcome</h2>
+    <div class="otable-wrap">
+      <table class="otable">
+        <thead><tr><th></th><th>Before</th><th>After</th></tr></thead>
+        <tbody>
+          <tr><th>Loki</th><td>Facing nine hours alone, five days a week</td><td>Walked every weekday by the same person</td></tr>
+          <tr><th>Sam</th><td>Anxious at work, no one trusted to call</td><td>Gets an update after each walk and can focus at work</td></tr>
+          <tr><th>Trust</th><td>No local network for pet care</td><td>A verified neighbor, met in person first</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="helped"><b>How Vello helped:</b> it connected Sam with nearby walkers, made it easy to meet one in person before committing, and turned a single request into a recurring weekday booking.</p>
+  </section>
+</div>
+
+<script>
+  // Mood 1 = very stressed, 5 = relieved. One point per phase, plus the start and end of the line.
+  const points = [
+    { x: 0,    m: 2.2 },
+    { x: 100,  m: 2,   t: "Worried, guilty" },
+    { x: 300,  m: 2.3, t: "Stuck, then hopeful" },
+    { x: 500,  m: 2.7, t: "Hopeful, uncertain", pos: "above" },
+    { x: 700,  m: 3,   t: "Torn between options", pos: "below" },
+    { x: 900,  m: 3.8, t: "Reassured", pos: "below" },
+    { x: 1100, m: 1.5, t: "Anxious, then relieved", s: "Low point", low: true, pos: "below" },
+    { x: 1300, m: 4.5, t: "Content, at ease", pos: "below" },
+    { x: 1400, m: 4.6 }
+  ];
+  const W = 1400, H = 230, TOP = 45, BOT = 185;
+  const y = m => TOP + (5 - m) / 4 * (BOT - TOP);
+  const P = points.map(p => [p.x, y(p.m)]);
+
+  // Catmull-Rom through every point, drawn as cubic Béziers.
+  let d = `M${P[0][0]},${P[0][1]}`;
+  for (let i = 0; i < P.length - 1; i++) {
+    const p0 = P[i - 1] || P[i], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0]},${c1[1]} ${c2[0]},${c2[1]} ${p2[0]},${p2[1]}`;
+  }
+
+  const row = document.getElementById("emo");
+  const mid = y(3);
+  row.insertAdjacentHTML("beforeend",
+    `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+       <line class="mid" x1="0" x2="${W}" y1="${mid}" y2="${mid}"></line>
+       <path d="${d}"></path>
+     </svg>`);
+
+  points.filter(p => p.t).forEach(p => {
+    const left = (p.x / W * 100) + "%";
+    const py = y(p.m);
+    const dot = document.createElement("span");
+    dot.className = "pt" + (p.low ? " low" : "");
+    dot.style.left = left; dot.style.top = (py / H * 100) + "%";
+    row.appendChild(dot);
+
+    const lab = document.createElement("span");
+    lab.className = "feel" + (p.low ? " low" : "");
+    lab.innerHTML = p.t + (p.s ? `<small>${p.s}</small>` : "");
+    lab.style.left = p.dx ? `calc(${left} + ${p.dx}px)` : left;
+    // Label above the dot when it sits low, below when it sits high.
+    const above = p.pos ? p.pos === "above" : py > H / 2;
+    if (above) lab.style.bottom = (H - py + 14) + "px";
+    else lab.style.top = (py + 14) + "px";
+    row.appendChild(lab);
+  });
+</script>

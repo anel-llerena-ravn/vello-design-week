@@ -1,0 +1,294 @@
+<title>Request Flow Stress Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  :root {
+    --paper: #F6F2E7;
+    --card: #FFFDF7;
+    --ink: #1B1C18;
+    --muted: #5B5E52;
+    --line: #D9D6C7;
+    --forest: #16462F;
+    --on-forest: #F6F2E7;
+    --olive: #557E26;
+    --tint: #E7EDD8;
+    --persimmon: #C2481F;
+    --empty-bg: #ECECE6; --empty-bd: #B9B8AC; --empty-tx: #45463F;
+    --err-bg: #F8E3DC;   --err-bd: #D98B72;   --err-tx: #8A2D14;
+    --con-bg: #FBEFCF;   --con-bd: #D9AE45;   --con-tx: #6B4E07;
+    --display: "Bricolage Grotesque", "Hanken Grotesk", system-ui, sans-serif;
+    --body: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #131510; --card: #1D2119; --ink: #EDEAE0; --muted: #A9AC9E; --line: #343A2C;
+      --forest: #A9CFB4; --on-forest: #131510; --olive: #9CC266; --tint: #253020; --persimmon: #FF8A63;
+      --empty-bg: #2A2B26; --empty-bd: #55574D; --empty-tx: #D2D2C8;
+      --err-bg: #3D211A;   --err-bd: #9A4A33;   --err-tx: #F4C2B2;
+      --con-bg: #3A3016;   --con-bd: #9C7D24;   --con-tx: #F1D98F;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #131510; --card: #1D2119; --ink: #EDEAE0; --muted: #A9AC9E; --line: #343A2C;
+    --forest: #A9CFB4; --on-forest: #131510; --olive: #9CC266; --tint: #253020; --persimmon: #FF8A63;
+    --empty-bg: #2A2B26; --empty-bd: #55574D; --empty-tx: #D2D2C8;
+    --err-bg: #3D211A;   --err-bd: #9A4A33;   --err-tx: #F4C2B2;
+    --con-bg: #3A3016;   --con-bd: #9C7D24;   --con-tx: #F1D98F;
+  }
+
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 36px 64px; display: grid; gap: 30px; }
+
+  header { display: grid; gap: 10px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--olive); }
+  h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(28px, 4.4vw, 44px); line-height: 1.05; color: var(--forest); text-wrap: balance; }
+  .lede { margin: 0; color: var(--muted); font-size: 17px; max-width: 64ch; }
+  .flowlink { justify-self: start; display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; padding: 9px 16px; border-radius: 999px; background: var(--forest); color: var(--on-forest); text-decoration: none; font-weight: 600; font-size: 14.5px; }
+  .flowlink:hover { opacity: .9; }
+  .flowlink:focus-visible, button:focus-visible { outline: 3px solid var(--olive); outline-offset: 2px; }
+
+  .counts { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 6px; }
+  .counts div { display: grid; }
+  .counts b { font-family: var(--display); font-size: 34px; line-height: 1; color: var(--forest); font-variant-numeric: tabular-nums; }
+  .counts span { font-size: 13.5px; color: var(--muted); }
+
+  /* Section switcher */
+  .tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; background: var(--paper); border-bottom: 1px solid var(--line); }
+  .tab { font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; padding: 8px 16px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+  .tab[aria-pressed="true"] { background: var(--forest); border-color: var(--forest); color: var(--on-forest); }
+
+  section { display: grid; gap: 16px; }
+  h2 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 24px; color: var(--forest); }
+  .note { margin: 0; color: var(--muted); font-size: 15px; max-width: 70ch; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .filters .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+  .chip { font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); }
+  .chip .ct { font-family: var(--mono); font-size: 11.5px; opacity: .75; }
+  .chip[aria-pressed="true"] { border-color: var(--forest); background: var(--tint); }
+
+  /* Correction */
+  .correction { display: grid; gap: 6px; padding: 18px 20px; border-radius: 14px; background: var(--card); border: 1.5px dashed var(--persimmon); }
+  .correction .k { font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--persimmon); }
+  .correction p { margin: 0; max-width: 72ch; }
+
+  /* Gap cards */
+  .gaps { display: grid; gap: 12px; }
+  .gap { display: grid; grid-template-columns: 44px 1fr; gap: 4px 16px; padding: 18px 20px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line); }
+  .gap .num { grid-row: span 2; font-family: var(--display); font-weight: 700; font-size: 28px; line-height: 1; color: var(--forest); font-variant-numeric: tabular-nums; }
+  .gap h3 { margin: 0; font-size: 18px; line-height: 1.35; font-weight: 700; }
+  .gap dl { margin: 8px 0 0; display: grid; grid-template-columns: 150px 1fr; gap: 8px 16px; }
+  .gap dt { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+  .gap dd { margin: 0; font-size: 15px; }
+  .state { display: inline-block; font-size: 13px; font-weight: 600; padding: 2px 10px; border-radius: 999px; border: 1.5px solid; }
+  .state.empty { background: var(--empty-bg); border-color: var(--empty-bd); color: var(--empty-tx); }
+  .state.error { background: var(--err-bg); border-color: var(--err-bd); color: var(--err-tx); }
+  .state.conflict { background: var(--con-bg); border-color: var(--con-bd); color: var(--con-tx); }
+  .order { font-size: 13px; color: var(--muted); }
+
+  /* Assumptions */
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+  .group { display: grid; gap: 10px; padding: 18px 20px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line); }
+  .group h3 { margin: 0; font-size: 16px; }
+  .group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .group li { display: grid; grid-template-columns: 38px 1fr; gap: 10px; font-size: 15px; align-items: baseline; }
+  .group li b { font-family: var(--mono); font-size: 12.5px; color: var(--persimmon); font-variant-numeric: tabular-nums; }
+  .reqs { margin: 0; font-size: 14px; color: var(--muted); }
+
+  /* Findings */
+  .answers { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; align-items: start; }
+  .answer { display: grid; gap: 10px; padding: 20px 22px; border-radius: 14px; background: var(--card); border: 1.5px solid var(--line); }
+  .answer .q { font-family: var(--mono); font-size: 11px; letter-spacing: .07em; text-transform: uppercase; color: var(--olive); }
+  .answer h3 { margin: 0; font-family: var(--display); font-size: 21px; color: var(--forest); }
+  .answer p { margin: 0; font-size: 15px; }
+  .answer ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15px; }
+  .answer blockquote { margin: 0; padding-left: 12px; border-left: 3px solid var(--olive); font-style: italic; color: var(--muted); }
+
+  .empty-msg { margin: 0; padding: 14px; color: var(--muted); font-size: 14.5px; }
+
+  @media (max-width: 620px) {
+    .gap { grid-template-columns: 1fr; }
+    .gap .num { grid-row: auto; font-size: 22px; }
+    .gap dl { grid-template-columns: 1fr; gap: 2px; }
+    .gap dd { margin-bottom: 8px; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Vello · Design week · Request phase</span>
+    <h1>Stress test: Request phase user flow</h1>
+    <p class="lede">Sam posts a request for a weekday dog walker for Loki and waits for the first replies. The flow runs from tapping + to seeing the replies, where the Compare phase starts.</p>
+    <a class="flowlink" href="https://claude.ai/artifact/4KVN9G4hgBzyWwrfd8vcPF" target="_blank" rel="noopener">Open the stress-tested flow ↗</a>
+    <div class="counts" aria-label="Summary">
+      <div><b>5</b><span>gaps found</span></div>
+      <div><b>5</b><span>missing states caught</span></div>
+      <div><b>11</b><span>assumptions to verify</span></div>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Sections">
+    <button class="tab" id="tab-all" type="button" data-show="all" aria-pressed="true">All</button>
+    <button class="tab" id="tab-gaps" type="button" data-show="gaps" aria-pressed="false">Gaps and states</button>
+    <button class="tab" id="tab-assumptions" type="button" data-show="assumptions" aria-pressed="false">Assumptions</button>
+    <button class="tab" id="tab-findings" type="button" data-show="findings" aria-pressed="false">Findings</button>
+  </nav>
+
+  <section data-section="gaps" aria-labelledby="h-correction">
+    <h2 id="h-correction">Where I corrected Claude</h2>
+    <div class="correction">
+      <span class="k">Claude's first draft</span>
+      <p>Assumptions like "Posting can't fail" and "Loads instantly, never fails".</p>
+      <span class="k">Correction</span>
+      <p>We can't assume that. The flow has to plan for specific scenarios, like the internet connection dropping mid request creation.</p>
+    </div>
+  </section>
+
+  <section data-section="gaps" aria-labelledby="h-gaps">
+    <h2 id="h-gaps">Gaps, from most to least critical</h2>
+    <div class="filters" role="group" aria-label="Filter gaps by missing state">
+      <span class="lbl">Missing state</span>
+      <button class="chip" id="f-all" type="button" data-state="all" aria-pressed="true">All <span class="ct">5</span></button>
+      <button class="chip" id="f-empty" type="button" data-state="empty" aria-pressed="false"><span class="state empty">Empty</span> <span class="ct">2</span></button>
+      <button class="chip" id="f-error" type="button" data-state="error" aria-pressed="false"><span class="state error">Error</span> <span class="ct">2</span></button>
+      <button class="chip" id="f-conflict" type="button" data-state="conflict" aria-pressed="false"><span class="state conflict">Conflict</span> <span class="ct">1</span></button>
+    </div>
+
+    <div class="gaps" id="gaps">
+      <article class="gap" data-state="empty">
+        <span class="num">1</span>
+        <h3>What if Sam's address is inside the neighborhood, but no verified dog walker covers that street?</h3>
+        <dl>
+          <dt>What the flow did</dt><dd>Sam gets "Request posted to your block" and "Neighbors usually answer within a couple of hours" anyway.</dd>
+          <dt>Missing state</dt><dd><span class="state empty">Empty: no walkers nearby</span></dd>
+          <dt>What Sam should see</dt><dd>S5 says no walkers cover the street yet, keeps the request open for new walkers, and offers Browse neighbors.</dd>
+        </dl>
+      </article>
+      <article class="gap" data-state="error">
+        <span class="num">2</span>
+        <h3>What if Sam loses connection right as they tap Post?</h3>
+        <dl>
+          <dt>What the flow did</dt><dd>One note says posting waits for a connection and another says it fails, so Sam can't tell if Loki's request went out.</dd>
+          <dt>Missing state</dt><dd><span class="state error">Error: not sure it posted</span></dd>
+          <dt>What Sam should see</dt><dd>A clear message saying whether the request is live or still waiting to post, and trying again never posts it twice.</dd>
+        </dl>
+      </article>
+      <article class="gap" data-state="error">
+        <span class="num">3</span>
+        <h3>What if Elena replies and is then removed by a Community Admin before Sam opens the replies?</h3>
+        <dl>
+          <dt>What the flow did</dt><dd>Only a walker who withdraws is covered, so Elena's reply would still show as verified and bookable.</dd>
+          <dt>Missing state</dt><dd><span class="state error">Error: reply no longer available</span></dd>
+          <dt>What Sam should see</dt><dd>Elena's reply shows "No longer available on Vello", Book is off, and the reply count drops.</dd>
+        </dl>
+      </article>
+      <article class="gap" data-state="conflict">
+        <span class="num">4</span>
+        <h3>What if Sam posts a second dog-walking request by mistake?</h3>
+        <dl>
+          <dt>What the flow did</dt><dd>S2 lets Sam post another without saying what happens to the first, and the prototype replaces it along with its replies.</dd>
+          <dt>Missing state</dt><dd><span class="state conflict">Conflict: two open requests</span></dd>
+          <dt>What Sam should see</dt><dd>S2 says the first request and its replies stay, and Sam can see both requests and delete the extra one.</dd>
+        </dl>
+      </article>
+      <article class="gap" data-state="empty">
+        <span class="num">5</span>
+        <h3>What if no walker ever replies?</h3>
+        <dl>
+          <dt>What the flow did</dt><dd>S5 keeps saying "usually within a couple of hours" for days, and the 24-hour nudge has no screen.</dd>
+          <dt>Missing state</dt><dd><span class="state empty">Empty: still no replies after a day</span></dd>
+          <dt>What Sam should see</dt><dd>After 24 hours S5 explains that nobody has replied yet and offers to widen the time or budget, or browse neighbors.</dd>
+        </dl>
+      </article>
+    </div>
+    <p class="order">Every screen in the flow lists its Loading, Empty, Error and Success states. These are design requirements, so they aren't counted as assumptions.</p>
+  </section>
+
+  <section data-section="assumptions" aria-labelledby="h-assumptions">
+    <h2 id="h-assumptions">Assumptions to verify</h2>
+    <p class="note">Each one is a gap between the flow and Vello's current screens. The numbers match the tags in the flow.</p>
+    <div class="filters" role="group" aria-label="Filter assumptions">
+      <span class="lbl">Show</span>
+      <button class="chip" id="a-all" type="button" data-group="all" aria-pressed="true">All <span class="ct">11</span></button>
+      <button class="chip" id="a-differs" type="button" data-group="differs" aria-pressed="false">Screen behaves differently <span class="ct">7</span></button>
+      <button class="chip" id="a-new" type="button" data-group="new" aria-pressed="false">Doesn't exist yet <span class="ct">4</span></button>
+    </div>
+    <div class="groups">
+      <div class="group" data-group="differs">
+        <h3>The screen exists, but behaves differently</h3>
+        <ul>
+          <li><b>#1</b><span>The empty-category button on Home opens the request form.</span></li>
+          <li><b>#2</b><span>A second request keeps both open, instead of replacing the first.</span></li>
+          <li><b>#3</b><span>Leaving a filled-in form asks before discarding.</span></li>
+          <li><b>#4</b><span>Addresses outside Vello's area are blocked, with a waitlist.</span></li>
+          <li><b>#6</b><span>Only walkers who cover the street get the request, and Sam is told when there are none.</span></li>
+          <li><b>#7</b><span>Sam can edit or close a request, and walkers who replied are told.</span></li>
+          <li><b>#10</b><span>Each reply sends a push. With notifications off, only the Home card updates.</span></li>
+        </ul>
+      </div>
+      <div class="group" data-group="new">
+        <h3>Nothing exists yet</h3>
+        <ul>
+          <li><b>#5</b><span>A lost connection keeps the draft and never posts twice.</span></li>
+          <li><b>#8</b><span>After 24 hours with no replies, Sam gets a nudge.</span></li>
+          <li><b>#9</b><span>Requests with no replies expire after 7 days.</span></li>
+          <li><b>#11</b><span>A walker removed by an admin shows as no longer available.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section data-section="findings" aria-labelledby="h-findings">
+    <h2 id="h-findings">Findings</h2>
+    <div class="answers">
+      <article class="answer">
+        <span class="q">One gap between the flow and Vello's current screens</span>
+        <h3>Assumption #6: who gets the request</h3>
+        <p>The prototype always shows "Request posted to your block", whether or not a walker covers Sam's street.</p>
+        <p>The flow adds a check (D6), and if no walker covers the street, S5 tells Sam and keeps the request open.</p>
+      </article>
+      <article class="answer">
+        <span class="q">One place the journey reveals a need a screen alone wouldn't</span>
+        <h3>The Wait stage</h3>
+        <p>Looking at S5 alone, the problem looks like an empty state. The journey shows that Sam isn't looking at S5: Sam is at work, hopeful but uncertain.</p>
+        <blockquote>"Will anyone be free every single weekday?"</blockquote>
+        <ul>
+          <li><b>The problem:</b> between posting and the first reply, Sam has no way to know whether anything is happening, and Vello says nothing unless Sam opens the app.</li>
+          <li><b>Why a screen misses it:</b> the problem only appears over time, and a single screen doesn't show time passing.</li>
+          <li><b>Ideas to explore:</b> telling Sam when a walker replies, checking in when a day goes by with no replies, or showing how many walkers have seen the request.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Section switcher
+  const tabs = document.querySelectorAll(".tab");
+  const sections = document.querySelectorAll("[data-section]");
+  tabs.forEach(t => t.addEventListener("click", () => {
+    tabs.forEach(x => x.setAttribute("aria-pressed", String(x === t)));
+    const show = t.dataset.show;
+    sections.forEach(s => { s.hidden = show !== "all" && s.dataset.section !== show; });
+  }));
+
+  // Filter gaps by missing state
+  const stateChips = document.querySelectorAll("[data-state].chip");
+  const gapCards = document.querySelectorAll(".gap");
+  stateChips.forEach(c => c.addEventListener("click", () => {
+    stateChips.forEach(x => x.setAttribute("aria-pressed", String(x === c)));
+    gapCards.forEach(g => { g.hidden = c.dataset.state !== "all" && g.dataset.state !== c.dataset.state; });
+  }));
+
+  // Filter assumptions by group
+  const groupChips = document.querySelectorAll("[data-group].chip");
+  const groups = document.querySelectorAll(".group");
+  groupChips.forEach(c => c.addEventListener("click", () => {
+    groupChips.forEach(x => x.setAttribute("aria-pressed", String(x === c)));
+    groups.forEach(g => { g.hidden = c.dataset.group !== "all" && g.dataset.group !== c.dataset.group; });
+  }));
+</script>

@@ -1,0 +1,531 @@
+<title>Bookings Accessibility Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    /* Vello tokens */
+    --ink-900: #1B1C18; --ink-700: #3D3F37; --ink-600: #54564C; --ink-500: #6E7064;
+    --ink-400: #8D8F80; --ink-200: #D6D6C6; --ink-150: #E5E4D6; --ink-100: #EFEEE1;
+    --paper: #F6F2E7; --paper-2: #EFEADB; --white: #FFFFFF;
+    --forest-800: #16462F; --forest-900: #0E3A28; --forest-100: #DCE9E1;
+    --green-700: #466621; --green-600: #557E26; --green-200: #D7E3BD; --green-100: #EBF1DB; --green-50: #F5F8EC;
+    --amber-700: #C77F12; --amber-500: #F4B740; --amber-100: #FCEFCF; --amber-900: #8A5A0B;
+    --coral-500: #F0623B; --coral-700: #C5421F;
+    --red-700: #B23636; --red-100: #FBE3E3;
+
+    --font-display: 'Bricolage Grotesque', 'Hanken Grotesk', system-ui, sans-serif;
+    --font-sans: 'Hanken Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px; --radius-xl: 28px; --radius-pill: 999px;
+    --shadow-sm: 0 2px 6px rgba(25, 28, 25, 0.07);
+    --shadow-md: 0 6px 18px rgba(25, 28, 25, 0.09);
+
+    --gutter: clamp(16px, 4vw, 40px);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink-700);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-inline: var(--gutter); }
+  h1, h2, h3 { font-family: var(--font-display); color: var(--ink-900); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+  p { margin: 0; }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+
+  /* ---------- Hero ---------- */
+  .hero { background: var(--forest-800); color: var(--paper); padding-block: clamp(40px, 7vw, 76px) clamp(36px, 6vw, 60px); }
+  .hero__top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: clamp(28px, 5vw, 48px); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 22px; color: var(--paper); letter-spacing: -0.02em; }
+  .brand svg { width: 30px; height: 30px; }
+  .hero__meta { font-size: 13.5px; color: var(--forest-100); }
+  .hero .eyebrow { color: var(--green-200); }
+  .hero h1 { color: var(--paper); font-size: clamp(34px, 5.6vw, 60px); line-height: 1.04; font-weight: 800; margin-top: 14px; max-width: 18ch; }
+  .hero__lede { margin-top: 20px; font-size: clamp(16px, 1.8vw, 19px); color: var(--forest-100); max-width: 60ch; }
+  .hero__lede b { color: var(--paper); font-weight: 600; }
+
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: clamp(28px, 5vw, 44px); }
+  .stat { background: rgba(246, 242, 231, 0.07); border: 1px solid rgba(246, 242, 231, 0.16); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .stat__v { font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 4vw, 42px); line-height: 1; color: var(--paper); font-variant-numeric: tabular-nums; }
+  .stat__v--crit { color: #FFB59E; }
+  .stat__k { margin-top: 8px; font-size: 13.5px; color: var(--forest-100); line-height: 1.4; }
+
+  /* ---------- Sections ---------- */
+  section { padding-block: clamp(44px, 7vw, 72px); }
+  section + section { border-top: 1px solid var(--ink-150); }
+  .sec__head { display: grid; gap: 10px; margin-bottom: 28px; max-width: 68ch; }
+  .sec__head .eyebrow { color: var(--green-700); }
+  .sec__head h2 { font-size: clamp(26px, 3.4vw, 36px); line-height: 1.1; }
+  .sec__head p { color: var(--ink-600); }
+
+  /* ---------- Scorecard ---------- */
+  .score { overflow-x: auto; border: 1.5px solid var(--ink-150); border-radius: var(--radius-lg); background: var(--white); }
+  .score table { width: 100%; border-collapse: collapse; min-width: 620px; }
+  .score th, .score td { padding: 16px 18px; text-align: left; vertical-align: top; }
+  .score thead th { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-600); background: var(--paper-2); }
+  .score tbody tr + tr td, .score tbody tr + tr th { border-top: 1px solid var(--ink-100); }
+  .score tbody th { font-family: var(--font-display); font-size: 17px; color: var(--ink-900); font-weight: 700; width: 22%; }
+  .score tbody th small { display: block; font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--ink-600); margin-top: 2px; }
+  .cellnote { display: block; font-size: 13px; color: var(--ink-600); margin-top: 6px; line-height: 1.45; }
+
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; padding: 5px 11px 5px 9px; border-radius: var(--radius-pill); white-space: nowrap; line-height: 1.1; }
+  .pill svg { width: 14px; height: 14px; flex: none; }
+  .pill--fail { background: var(--red-100); color: var(--red-700); }
+  .pill--warn { background: var(--amber-100); color: var(--amber-900); }
+  .pill--pass { background: var(--green-100); color: var(--green-700); }
+  .pill--minor { background: var(--ink-100); color: var(--ink-600); }
+
+  /* ---------- Findings ---------- */
+  .finding { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(20px, 3vw, 28px); padding: clamp(22px, 3vw, 32px); background: var(--white); border: 1.5px solid var(--ink-150); border-radius: var(--radius-xl); }
+  .finding + .finding { margin-top: 20px; }
+  .finding__text { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); column-gap: clamp(20px, 4vw, 48px); align-content: start; }
+  .finding__text > * { grid-column: 1; }
+  .finding__text > .facts { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; align-self: start; }
+  .finding__rank { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .finding__n { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--ink-600); }
+  .finding h3 { font-size: clamp(22px, 2.6vw, 28px); line-height: 1.12; margin-top: 12px; }
+  .finding__impact { margin-top: 12px; color: var(--ink-700); }
+  .facts { display: grid; gap: 0; margin: 18px 0 0; }
+  .facts div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--ink-100); font-size: 14.5px; }
+  .facts dt { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-600); padding-top: 2px; }
+  .facts dd { margin: 0; color: var(--ink-900); }
+  .facts dd .mono { font-size: 13.5px; }
+
+  .evidence { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-content: start; }
+  .ev { background: var(--paper); border-radius: var(--radius-lg); padding: 14px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .ev__label { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-600); }
+  .ev__stage { display: grid; place-items: center; min-height: 150px; padding: 12px 0; }
+  .ev { padding: 18px; }
+  .ev__cap { font-size: 13px; color: var(--ink-600); line-height: 1.45; }
+
+  /* Contrast meter (1:1 to 8:1, linear) */
+  .meter { display: grid; gap: 6px; }
+  .meter__track { position: relative; height: 10px; border-radius: var(--radius-pill); background: linear-gradient(to right, #F2C9C9 0 28.57%, #F6E3B8 28.57% 50%, #D7E3BD 50% 100%); }
+  .meter__tick { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink-700); border-radius: 1px; }
+  .meter__dot { position: absolute; top: 50%; width: 16px; height: 16px; margin-left: -8px; margin-top: -8px; border-radius: 50%; background: var(--ink-900); border: 3px solid var(--white); box-shadow: 0 0 0 1px var(--ink-900); }
+  .meter__row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .meter__v { font-family: var(--font-mono); font-weight: 600; font-size: 20px; color: var(--ink-900); font-variant-numeric: tabular-nums; }
+  .meter__scale { position: relative; height: 16px; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-600); }
+  .meter__scale span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+  .meter__scale span:first-child { transform: none; }
+  .meter__scale span:last-child { transform: translateX(-100%); }
+
+  /* ---------- Recreated Vello UI (evidence, true size) ---------- */
+  .vcard { width: 100%; max-width: 320px; background: var(--white); border: 1.5px solid var(--ink-150); border-radius: var(--radius-lg); padding: 14px; font-family: var(--font-sans); text-align: left; }
+  .vcard--dead { opacity: 0.62; }
+  .vrow { display: flex; gap: 11px; align-items: flex-start; }
+  .vav { position: relative; flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--forest-100); color: var(--forest-800); display: grid; place-items: center; font-weight: 700; font-size: 15px; }
+  .vav svg { position: absolute; right: -4px; bottom: -4px; width: 20px; height: 20px; }
+  .vbody { flex: 1; min-width: 0; }
+  .vwho { font-family: var(--font-display); font-weight: 700; font-size: 15.5px; color: var(--ink-900); letter-spacing: -0.01em; line-height: 1.25; }
+  .vsvc { font-size: 12.5px; color: var(--ink-500); margin-top: 2px; line-height: 1.35; }
+  .vbadge { flex: none; font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: var(--radius-pill); line-height: 1; white-space: nowrap; }
+  .vbadge--wait { background: var(--amber-100); color: var(--amber-700); }
+  .vbadge--wait-fix { background: var(--amber-100); color: var(--amber-900); }
+  .vbadge--neutral { background: var(--ink-100); color: var(--ink-500); }
+  .vbadge--neutral-fix { background: var(--ink-100); color: var(--ink-600); }
+  .vmeta { display: flex; align-items: center; gap: 8px; margin-top: 11px; }
+  .vchip { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--green-700); background: var(--green-50); border: 1px solid var(--green-200); padding: 3px 9px 3px 7px; border-radius: var(--radius-pill); white-space: nowrap; }
+  .vchip svg { width: 12px; height: 12px; }
+  .vprice { margin-left: auto; font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--ink-900); }
+  .vacts { display: flex; gap: 8px; margin-top: 12px; }
+  .vbtn { flex: 1; display: inline-flex; align-items: center; justify-content: center; font-family: var(--font-sans); font-weight: 600; font-size: 14px; border-radius: var(--radius-pill); border: 1.5px solid transparent; position: relative; white-space: nowrap; }
+  .vbtn--sm { height: 36px; }
+  .vbtn--md { height: 46px; }
+  .vbtn--primary { background: var(--green-600); color: var(--white); }
+  .vbtn--secondary { background: var(--white); color: var(--ink-900); border-color: var(--ink-200); }
+  .vbtn--ghost { background: transparent; color: var(--ink-900); }
+
+  /* 44pt guide around a 36pt button */
+  .guide { position: relative; }
+  .guide::before { content: ''; position: absolute; left: -1.5px; right: -1.5px; top: -5.5px; bottom: -5.5px; border: 1.5px dashed var(--red-700); border-radius: 14px; pointer-events: none; }
+  .dim { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
+  .dim--bad { color: var(--red-700); }
+  .dim--good { color: var(--green-700); }
+
+  .stars { display: inline-flex; gap: 2px; }
+  .stars svg { width: 22px; height: 22px; }
+  .gray { filter: grayscale(1); }
+  .rate-demo { display: grid; gap: 10px; justify-items: start; }
+  .rate-demo__row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-600); }
+
+  /* ---------- Other findings table ---------- */
+  .tbl { overflow-x: auto; border: 1.5px solid var(--ink-150); border-radius: var(--radius-lg); background: var(--white); }
+  .tbl table { width: 100%; border-collapse: collapse; min-width: 720px; }
+  .tbl th, .tbl td { padding: 14px 16px; text-align: left; vertical-align: top; font-size: 14.5px; }
+  .tbl thead th { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-600); background: var(--paper-2); }
+  .tbl tbody tr + tr td { border-top: 1px solid var(--ink-100); }
+  .tbl td:first-child { color: var(--ink-900); font-weight: 600; }
+  .tbl .mono { font-size: 13.5px; color: var(--ink-900); }
+
+  /* ---------- Next step ---------- */
+  .next { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 48px); align-items: start; }
+  .next__ask { background: var(--forest-800); color: var(--forest-100); border-radius: var(--radius-xl); padding: clamp(22px, 3vw, 32px); }
+  .next__ask h3 { color: var(--paper); font-size: clamp(22px, 2.6vw, 28px); line-height: 1.15; }
+  .next__ask p { margin-top: 12px; }
+  .next__ask ol { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: s; }
+  .next__ask li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: start; color: var(--paper); }
+  .next__ask li::before { content: counter(s); font-family: var(--font-mono); font-weight: 600; font-size: 13px; width: 26px; height: 26px; border-radius: 50%; background: rgba(246, 242, 231, 0.14); display: grid; place-items: center; }
+  .method { display: grid; gap: 14px; font-size: 14.5px; }
+  .method h3 { font-size: 20px; }
+  .method dl { margin: 0; display: grid; gap: 0; }
+  .method dl div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--ink-150); }
+  .method dt { font-weight: 700; color: var(--ink-900); }
+  .method dd { margin: 0; color: var(--ink-700); }
+  .method p { color: var(--ink-600); font-size: 13.5px; }
+
+  footer { padding-block: 28px 44px; border-top: 1px solid var(--ink-150); font-size: 13px; color: var(--ink-600); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .finding__text { grid-template-columns: minmax(0, 1fr); }
+    .finding__text > .facts { grid-column: 1; grid-row: auto; margin-top: 18px; }
+    .next { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .evidence { grid-template-columns: minmax(0, 1fr); }
+    .facts div, .method dl div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 2.8 19.5h18.4L12 4Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M12 10v4.2M12 17h.01" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8L12 2.8z"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2.2 4.6 5v6.1c0 4.6 3.1 7.9 7.4 9.6 4.3-1.7 7.4-5 7.4-9.6V5L12 2.2Z" fill="#557E26" stroke="#FFFFFF" stroke-width="2.4" stroke-linejoin="round"/><path d="m8.4 12 2.5 2.5 4.7-5" fill="none" stroke="#F6F2E7" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero__top">
+      <span class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#B6CF92" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></svg>
+        Vello
+      </span>
+      <span class="hero__meta">Design Week · Accessibility audit · Sep 24, 2026</span>
+    </div>
+    <p class="eyebrow">Bookings: Upcoming, Past and Manage</p>
+    <h1>Bookings breaks two rules of our own design system.</h1>
+    <p class="hero__lede">Vello's design system promises <b>tap targets of at least 44pt</b> and <b>4.5:1 contrast on all text</b>. The main buttons on every booking card are 36pt, and some status text drops to 2.3:1. Both issues come from shared components, so one fix to each component fixes it everywhere it appears.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="stat__v">3</div><div class="stat__k">screens audited against 3 WCAG checks</div></div>
+      <div class="stat"><div class="stat__v">9</div><div class="stat__k">issues found</div></div>
+      <div class="stat"><div class="stat__v stat__v--crit">3</div><div class="stat__k">critical, all on the booking cards</div></div>
+      <div class="stat"><div class="stat__v mono">2.27:1</div><div class="stat__k">lowest text contrast (target 4.5:1)</div></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <div class="sec__head">
+        <p class="eyebrow">Scorecard</p>
+        <h2>Where each screen stands</h2>
+        <p>The list views carry nearly all of the problems. The Manage screen, where people review a confirmed booking, is in good shape.</p>
+      </div>
+      <div class="score">
+        <table>
+          <thead>
+            <tr><th scope="col">Screen</th><th scope="col">Contrast (4.5:1)</th><th scope="col">Touch targets (44pt)</th><th scope="col">Meaning by color alone</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Upcoming<small>Your bookings list</small></th>
+              <td><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>2 fails</span><span class="cellnote">"Waiting on reply" badge, unread badge</span></td>
+              <td><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>2 fails</span><span class="cellnote">Manage and Message buttons</span></td>
+              <td><span class="pill pill--warn"><svg aria-hidden="true"><use href="#i-alert"/></svg>Borderline</span><span class="cellnote">Active nav item</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Past<small>Your bookings list</small></th>
+              <td><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>6 fails</span><span class="cellnote">Cancelled card, status badges</span></td>
+              <td><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>2 fails</span><span class="cellnote">Leave a rating and Book again</span></td>
+              <td><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>1 fail</span><span class="cellnote">"You rated" stars</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Manage<small>Confirmed booking</small></th>
+              <td><span class="pill pill--pass"><svg aria-hidden="true"><use href="#i-check"/></svg>Pass</span></td>
+              <td><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>1 fail</span><span class="cellnote">"Cancel booking" link</span></td>
+              <td><span class="pill pill--pass"><svg aria-hidden="true"><use href="#i-check"/></svg>Pass</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec__head">
+        <p class="eyebrow">Critical findings</p>
+        <h2>Three issues to fix first</h2>
+        <p>Each example below is a true-size copy of the component, built with the prototype's own values. "As built" is what users see today; "Fixed" applies the recommended change.</p>
+      </div>
+
+      <!-- Finding 1 -->
+      <article class="finding" aria-labelledby="f1">
+        <div class="finding__text">
+          <div class="finding__rank"><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>Critical</span><span class="finding__n">1 of 3 · Touch targets</span></div>
+          <h3 id="f1">Every booking card action is too small to tap reliably</h3>
+          <p class="finding__impact">Manage, Message, Leave a rating and Book again are the only ways to act on a booking. All four use the small button size, 8pt short of the minimum, which leads to missed taps and wrong-button taps for people with limited dexterity or a phone in one hand.</p>
+          <dl class="facts">
+            <div><dt>Measured</dt><dd><span class="mono">36pt</span> tall (<span class="mono">.vl-btn--sm</span>)</dd></div>
+            <div><dt>Target</dt><dd><span class="mono">44pt</span> (Apple HIG, WCAG 2.5.5)</dd></div>
+            <div><dt>Where</dt><dd>Upcoming and Past, every card</dd></div>
+            <div><dt>Fix</dt><dd>Use the medium size on cards: <span class="mono">46pt</span></dd></div>
+          </dl>
+        </div>
+        <div class="evidence">
+          <div class="ev">
+            <div class="ev__label"><span>As built</span><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>36pt</span></div>
+            <div class="ev__stage">
+              <div class="vcard" aria-hidden="true">
+                <div class="vrow">
+                  <span class="vav">MR<svg><use href="#i-shield"/></svg></span>
+                  <div class="vbody"><div class="vwho">Maya Rivera</div><div class="vsvc">60-min neighborhood dog walk</div></div>
+                </div>
+                <div class="vacts">
+                  <span class="vbtn vbtn--sm vbtn--primary guide">Manage</span>
+                  <span class="vbtn vbtn--sm vbtn--secondary guide">Message</span>
+                </div>
+                <div class="dim dim--bad"><span>Dashed line = 44pt minimum</span><span>−8pt</span></div>
+              </div>
+            </div>
+            <p class="ev__cap">Each button falls short of the dashed 44pt outline.</p>
+          </div>
+          <div class="ev">
+            <div class="ev__label"><span>Fixed</span><span class="pill pill--pass"><svg aria-hidden="true"><use href="#i-check"/></svg>46pt</span></div>
+            <div class="ev__stage">
+              <div class="vcard" aria-hidden="true">
+                <div class="vrow">
+                  <span class="vav">MR<svg><use href="#i-shield"/></svg></span>
+                  <div class="vbody"><div class="vwho">Maya Rivera</div><div class="vsvc">60-min neighborhood dog walk</div></div>
+                </div>
+                <div class="vacts">
+                  <span class="vbtn vbtn--md vbtn--primary">Manage</span>
+                  <span class="vbtn vbtn--md vbtn--secondary">Message</span>
+                </div>
+                <div class="dim dim--good"><span>Medium button</span><span>+2pt over target</span></div>
+              </div>
+            </div>
+            <p class="ev__cap">Same card, 10pt taller. No layout change needed.</p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Finding 2 -->
+      <article class="finding" aria-labelledby="f2">
+        <div class="finding__text">
+          <div class="finding__rank"><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>Critical</span><span class="finding__n">2 of 3 · Contrast</span></div>
+          <h3 id="f2">Cancelled bookings fade below readable contrast</h3>
+          <p class="finding__impact">The whole cancelled card is set to 62% opacity. That fades every color on it, including the "Book again" button, which is the one action we want people to take after a cancellation.</p>
+          <dl class="facts">
+            <div><dt>Measured</dt><dd>Four elements between <span class="mono">2.27</span> and <span class="mono">2.76:1</span></dd></div>
+            <div><dt>Target</dt><dd><span class="mono">4.5:1</span> (WCAG 1.4.3)</dd></div>
+            <div><dt>Where</dt><dd>Past tab, cancelled card (Sofia Marino)</dd></div>
+            <div><dt>Fix</dt><dd>Remove the opacity. The "Cancelled" badge already marks the state.</dd></div>
+          </dl>
+        </div>
+        <div class="evidence">
+          <div class="ev">
+            <div class="ev__label"><span>As built</span><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>2.46:1 button</span></div>
+            <div class="ev__stage">
+              <div class="vcard vcard--dead" aria-hidden="true">
+                <div class="vrow">
+                  <span class="vav">SM<svg><use href="#i-shield"/></svg></span>
+                  <div class="vbody"><div class="vwho">Sofia Marino</div><div class="vsvc">Weekly apartment clean</div></div>
+                  <span class="vbadge vbadge--neutral">Cancelled</span>
+                </div>
+                <div class="vmeta"><span class="vchip"><svg><use href="#i-cal"/></svg>Wed, May 20 · 11:00 AM</span><span class="vprice">$90</span></div>
+                <div class="vacts"><span class="vbtn vbtn--sm vbtn--primary">Book again</span></div>
+              </div>
+            </div>
+            <div class="meter" role="img" aria-label="Service text contrast 2.49 to 1, below the 4.5 to 1 target">
+              <div class="meter__row"><span class="ev__cap">Service text</span><span class="meter__v">2.49:1</span></div>
+              <div class="meter__track"><span class="meter__tick" style="left:50%"></span><span class="meter__dot" style="left:21.3%"></span></div>
+              <div class="meter__scale"><span style="left:0">1:1</span><span style="left:28.57%">3</span><span style="left:50%">4.5</span><span style="left:100%">8:1</span></div>
+            </div>
+          </div>
+          <div class="ev">
+            <div class="ev__label"><span>Fixed</span><span class="pill pill--pass"><svg aria-hidden="true"><use href="#i-check"/></svg>4.77:1 button</span></div>
+            <div class="ev__stage">
+              <div class="vcard" aria-hidden="true">
+                <div class="vrow">
+                  <span class="vav">SM<svg><use href="#i-shield"/></svg></span>
+                  <div class="vbody"><div class="vwho">Sofia Marino</div><div class="vsvc">Weekly apartment clean</div></div>
+                  <span class="vbadge vbadge--neutral-fix">Cancelled</span>
+                </div>
+                <div class="vmeta"><span class="vchip"><svg><use href="#i-cal"/></svg>Wed, May 20 · 11:00 AM</span><span class="vprice">$90</span></div>
+                <div class="vacts"><span class="vbtn vbtn--md vbtn--primary">Book again</span></div>
+              </div>
+            </div>
+            <div class="meter" role="img" aria-label="Service text contrast 5.04 to 1, above the 4.5 to 1 target">
+              <div class="meter__row"><span class="ev__cap">Service text</span><span class="meter__v">5.04:1</span></div>
+              <div class="meter__track"><span class="meter__tick" style="left:50%"></span><span class="meter__dot" style="left:57.7%"></span></div>
+              <div class="meter__scale"><span style="left:0">1:1</span><span style="left:28.57%">3</span><span style="left:50%">4.5</span><span style="left:100%">8:1</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Finding 3 -->
+      <article class="finding" aria-labelledby="f3">
+        <div class="finding__text">
+          <div class="finding__rank"><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>Critical</span><span class="finding__n">3 of 3 · Contrast</span></div>
+          <h3 id="f3">"Waiting on reply" is the hardest status to read</h3>
+          <p class="finding__impact">This badge tells the user a neighbor hasn't confirmed yet, which is the booking most likely to need follow-up. Amber text on a pale amber fill, at 11px, is the lowest contrast on the Upcoming tab.</p>
+          <dl class="facts">
+            <div><dt>Measured</dt><dd><span class="mono">#C77F12</span> on <span class="mono">#FCEFCF</span> = <span class="mono">2.84:1</span></dd></div>
+            <div><dt>Target</dt><dd><span class="mono">4.5:1</span> (WCAG 1.4.3)</dd></div>
+            <div><dt>Where</dt><dd>Upcoming, pending bookings (Devon Clarke)</dd></div>
+            <div><dt>Fix</dt><dd>Darker amber text <span class="mono">#8A5A0B</span> = <span class="mono">5.18:1</span></dd></div>
+          </dl>
+        </div>
+        <div class="evidence">
+          <div class="ev">
+            <div class="ev__label"><span>As built</span><span class="pill pill--fail"><svg aria-hidden="true"><use href="#i-x"/></svg>2.84:1</span></div>
+            <div class="ev__stage">
+              <div class="vcard" aria-hidden="true">
+                <div class="vrow">
+                  <span class="vav">DC<svg><use href="#i-shield"/></svg></span>
+                  <div class="vbody"><div class="vwho">Devon Clarke</div><div class="vsvc">Mount a TV or floating shelves</div></div>
+                  <span class="vbadge vbadge--wait">Waiting on reply</span>
+                </div>
+                <div class="vmeta"><span class="vchip"><svg><use href="#i-cal"/></svg>Thu, Jun 18 · 10:00 AM</span><span class="vprice">$65</span></div>
+              </div>
+            </div>
+            <div class="meter" role="img" aria-label="Badge contrast 2.84 to 1, below the 4.5 to 1 target">
+              <div class="meter__row"><span class="ev__cap">Badge text</span><span class="meter__v">2.84:1</span></div>
+              <div class="meter__track"><span class="meter__tick" style="left:50%"></span><span class="meter__dot" style="left:26.3%"></span></div>
+              <div class="meter__scale"><span style="left:0">1:1</span><span style="left:28.57%">3</span><span style="left:50%">4.5</span><span style="left:100%">8:1</span></div>
+            </div>
+          </div>
+          <div class="ev">
+            <div class="ev__label"><span>Fixed</span><span class="pill pill--pass"><svg aria-hidden="true"><use href="#i-check"/></svg>5.18:1</span></div>
+            <div class="ev__stage">
+              <div class="vcard" aria-hidden="true">
+                <div class="vrow">
+                  <span class="vav">DC<svg><use href="#i-shield"/></svg></span>
+                  <div class="vbody"><div class="vwho">Devon Clarke</div><div class="vsvc">Mount a TV or floating shelves</div></div>
+                  <span class="vbadge vbadge--wait-fix">Waiting on reply</span>
+                </div>
+                <div class="vmeta"><span class="vchip"><svg><use href="#i-cal"/></svg>Thu, Jun 18 · 10:00 AM</span><span class="vprice">$65</span></div>
+              </div>
+            </div>
+            <div class="meter" role="img" aria-label="Badge contrast 5.18 to 1, above the 4.5 to 1 target">
+              <div class="meter__row"><span class="ev__cap">Badge text</span><span class="meter__v">5.18:1</span></div>
+              <div class="meter__track"><span class="meter__tick" style="left:50%"></span><span class="meter__dot" style="left:59.7%"></span></div>
+              <div class="meter__scale"><span style="left:0">1:1</span><span style="left:28.57%">3</span><span style="left:50%">4.5</span><span style="left:100%">8:1</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="sec__head">
+        <p class="eyebrow">Other findings</p>
+        <h2>Six smaller issues, each a small change</h2>
+        <p>None of these block a task on their own, but together they make the list views harder to scan.</p>
+      </div>
+      <div class="tbl">
+        <table>
+          <thead><tr><th scope="col">Issue</th><th scope="col">Severity</th><th scope="col">Evidence</th><th scope="col">Fix</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>"You rated" stars rely on color alone</td>
+              <td><span class="pill pill--warn"><svg aria-hidden="true"><use href="#i-alert"/></svg>Moderate</span></td>
+              <td>
+                <div class="rate-demo" aria-hidden="true">
+                  <div class="rate-demo__row"><span class="stars"><svg fill="#F4B740"><use href="#i-star"/></svg><svg fill="#F4B740"><use href="#i-star"/></svg><svg fill="#F4B740"><use href="#i-star"/></svg><svg fill="#D6D6C6"><use href="#i-star"/></svg><svg fill="#D6D6C6"><use href="#i-star"/></svg></span>Color</div>
+                  <div class="rate-demo__row"><span class="stars gray"><svg fill="#F4B740"><use href="#i-star"/></svg><svg fill="#F4B740"><use href="#i-star"/></svg><svg fill="#F4B740"><use href="#i-star"/></svg><svg fill="#D6D6C6"><use href="#i-star"/></svg><svg fill="#D6D6C6"><use href="#i-star"/></svg></span>Grayscale</div>
+                </div>
+                <span class="cellnote">Example 3-star rating. Filled and empty stars are <span class="mono">1.22:1</span> apart.</span>
+              </td>
+              <td>Show the number next to the stars ("3.0"), as the Manage screen already does</td>
+            </tr>
+            <tr>
+              <td>"Cancel booking" link is too small</td>
+              <td><span class="pill pill--warn"><svg aria-hidden="true"><use href="#i-alert"/></svg>Moderate</span></td>
+              <td>About <span class="mono">22pt</span> tall, no padding, right under the main button</td>
+              <td>Add vertical padding for a <span class="mono">44pt</span> hit area</td>
+            </tr>
+            <tr>
+              <td>"Completed" / "Cancelled" badges and inactive tab counts</td>
+              <td><span class="pill pill--warn"><svg aria-hidden="true"><use href="#i-alert"/></svg>Moderate</span></td>
+              <td><span class="mono">4.32:1</span> at 11px</td>
+              <td>Text to ink-600 <span class="mono">#54564C</span> = <span class="mono">6.40:1</span></td>
+            </tr>
+            <tr>
+              <td>Unread count on the Messages tab</td>
+              <td><span class="pill pill--warn"><svg aria-hidden="true"><use href="#i-alert"/></svg>Moderate</span></td>
+              <td>White on persimmon = <span class="mono">3.22:1</span> at 10px</td>
+              <td>Badge fill to coral-700 <span class="mono">#C5421F</span> = <span class="mono">5.03:1</span></td>
+            </tr>
+            <tr>
+              <td>Active nav item shown mostly by color</td>
+              <td><span class="pill pill--minor">Minor</span></td>
+              <td>Only other cue is a slightly thicker icon stroke (2.4 vs 2)</td>
+              <td>Add a filled icon or an indicator bar</td>
+            </tr>
+            <tr>
+              <td>Gray text on cream sits at the limit</td>
+              <td><span class="pill pill--minor">Minor</span></td>
+              <td>Inactive tabs and quiet links pass by <span class="mono">0.01</span> (<span class="mono">4.51:1</span>)</td>
+              <td>Use ink-600 = <span class="mono">6.68:1</span> for a safe margin</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap next">
+      <div class="next__ask">
+        <p class="eyebrow" style="color:var(--green-200)">Recommendation</p>
+        <h3 style="margin-top:10px">Fix the shared components, not the screens</h3>
+        <p>Every critical issue lives in a component used across the app: the small button, the faded card state and the status badge. Fixing them there brings Bookings in line with the design system and fixes the same problems on other screens.</p>
+        <ol>
+          <li>Use the medium button size on booking cards</li>
+          <li>Replace the faded cancelled state with the existing badge</li>
+          <li>Darken the amber and neutral badge text</li>
+        </ol>
+      </div>
+      <div class="method">
+        <h3>How this was measured</h3>
+        <dl>
+          <div><dt>Contrast</dt><dd>Hex values from the prototype's design tokens, ratios from the WCAG luminance formula. Text needs 4.5:1 (WCAG 2.2 AA, 1.4.3).</dd></div>
+          <div><dt>Touch targets</dt><dd>Heights from the component CSS. The prototype renders at 1x, so 1px equals 1pt. Target 44pt (Apple HIG, WCAG 2.5.5).</dd></div>
+          <div><dt>Color alone</dt><dd>Every status, state and indicator reviewed for a second cue besides color (WCAG 1.4.1).</dd></div>
+          <div><dt>Scope</dt><dd>Upcoming and Past lists, and the screen opened by "Manage". The cancel flow and new bookings were out of scope.</dd></div>
+        </dl>
+        <p>Measured from code, not on a device, so touch target heights are close estimates. Booking data is sample data from the prototype.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Vello · Product Management, Design Week (Day 4)</span>
+    <span>Full audit: accessibility-audit_bookings.md</span>
+  </div>
+</footer>
